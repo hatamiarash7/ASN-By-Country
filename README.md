@@ -1,5 +1,7 @@
 # ASN By Country
 
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/) [![GitHub release](https://img.shields.io/github/release/hatamiarash7/ASN-By-Country.svg)](https://GitHub.com/hatamiarash7/ASN-By-Country/releases/)
+
 It's a simple script to get ASN delegations list of specific country.
 
 ## Usage
@@ -43,4 +45,4 @@ Don't be shy and reach out to us if you want to contribute 😉
 
 ## Issues
 
-Each project may have many problems. Contributing to the better development of this project by reporting them. 👍s
+Each project may have many problems. Contributing to the better development of this project by reporting them. 👍
