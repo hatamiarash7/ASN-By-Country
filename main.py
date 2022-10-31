@@ -1,7 +1,10 @@
+"""This is a simple script to get all ASN's of a given country
+"""
+
+import sys
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-import sys
 from rich.console import Console
 
 console = Console(log_path=False)
@@ -13,7 +16,8 @@ if len(sys.argv) != 2:
 country = sys.argv[1]
 
 # Create object page
-url = 'https://www-public.imtbs-tsp.eu/~maigron/RIR_Stats/RIR_Delegations/Delegations/ASN/'+country+'.html'
+url = 'https://www-public.imtbs-tsp.eu/~maigron/RIR_Stats/RIR_Delegations/Delegations/ASN/'\
+    + country + '.html'
 page = requests.get(url)
 
 if page.status_code != 200:
@@ -36,7 +40,7 @@ for header in table.find_all('th'):
 
 # Create a data frame
 data = pd.DataFrame(columns=headers[1:])
-with open('ranges.txt', 'w') as ranges:
+with open(file='ranges.txt', mode='w', encoding='UTF-8') as ranges:
     rows = table.find_all('tr')[2:]
     for j in rows:
         with console.status("[bold green]Reading ...", spinner='aesthetic') as status:
