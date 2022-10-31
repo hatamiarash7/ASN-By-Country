@@ -2,7 +2,7 @@
 
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/) [![GitHub release](https://img.shields.io/github/release/hatamiarash7/ASN-By-Country.svg)](https://GitHub.com/hatamiarash7/ASN-By-Country/releases/)
 
-It's a simple script to get ASN delegations list of specific country.
+It's a simple script to get ASN delegations list of specific country. I'm using **RIR Delegations & RIPE NCC Allocations** from [here](https://www-public.imtbs-tsp.eu/~maigron/RIR_Stats/index.html).
 
 ## Usage
 
