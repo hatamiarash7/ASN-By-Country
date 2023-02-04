@@ -3,13 +3,13 @@ name: CodeQL
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - "main.py"
       - ".github/workflows/codeql-analysis.yml"
   pull_request:
     branches:
-      - master
+      - main
     paths:
       - "main.py"
       - ".github/workflows/codeql-analysis.yml"
