@@ -15,7 +15,7 @@ jobs:
           access_token: ${{ github.token }}
 
   docker:
-    name: 🐳 Build docker image
+    name: 🐳 Build Docker image
     runs-on: ubuntu-20.04
     needs: init
     steps:
