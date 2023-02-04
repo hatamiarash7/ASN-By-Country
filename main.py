@@ -46,7 +46,7 @@ with open(file='ranges.txt', mode='w', encoding='UTF-8') as ranges:
         with console.status("[bold green]Reading ...", spinner='aesthetic') as status:
             row_data = j.find_all('td')
             row = [i.text for i in row_data]
-            console.log(f"[red]Find[/red] \t [blue]{row[3]}[/blue]")
+            console.log(f"[red]Found[/red] \t [blue]{row[3]}[/blue]")
             if row[6] == 'Allocated':
                 ranges.write(row[3] + (',' if j != rows[-1] else ''))
             length = len(data)
