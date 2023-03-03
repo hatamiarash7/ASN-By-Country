@@ -1,6 +1,6 @@
 # ASN By Country
 
-[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/) [![GitHub release](https://img.shields.io/github/release/hatamiarash7/ASN-By-Country.svg)](https://GitHub.com/hatamiarash7/ASN-By-Country/releases/)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/) [![GitHub release](https://img.shields.io/github/release/hatamiarash7/ASN-By-Country.svg)](https://GitHub.com/hatamiarash7/ASN-By-Country/releases/) [![CodeQL](https://github.com/hatamiarash7/ASN-By-Country/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)](https://github.com/hatamiarash7/ASN-By-Country/actions/workflows/codeql-analysis.yml) [![GitGuardian](https://github.com/hatamiarash7/ASN-By-Country/actions/workflows/gitguardian.yml/badge.svg?branch=main)](https://github.com/hatamiarash7/ASN-By-Country/actions/workflows/gitguardian.yml) [![Release](https://github.com/hatamiarash7/ASN-By-Country/actions/workflows/release.yml/badge.svg)](https://github.com/hatamiarash7/ASN-By-Country/actions/workflows/release.yml)
 
 It's a simple script to get ASN delegations list of specific country. I'm using **RIR Delegations & RIPE NCC Allocations** from [here](https://www-public.imtbs-tsp.eu/~maigron/RIR_Stats/index.html).
 
@@ -14,6 +14,12 @@ Example:
 
 ```bash
 python main.py IR
+```
+
+### Docker
+
+```bash
+docker run --rm  -v /results:/app hatamiarash7/asn-by-country:latest <country>
 ```
 
 ## Result
