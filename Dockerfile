@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM python:3.9.5-slim-buster
+FROM --platform=$BUILDPLATFORM python:3.11.3-slim-buster
 
 ARG APP_VERSION="undefined@docker"
 
