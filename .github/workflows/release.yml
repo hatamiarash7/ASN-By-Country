@@ -21,9 +21,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Synchronize
-        uses: hatamiarash7/repo-sync@v0.1.1
+        uses: hatamiarash7/repo-sync@v0.1.2
         with:
           url: https://gitlab.com/hatamiarash7/asn-by-country.git
           username: hatamiarash7
