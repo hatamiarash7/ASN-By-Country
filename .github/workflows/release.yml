@@ -22,6 +22,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - uses: hatamiarash7/repo-sync@v0.1.0
+        with:
+          url: https://gitlab.com/hatamiarash7/asn-by-country.git
+          username: hatamiarash7
+          token: ${{ secrets.GITLAB_TOKEN }}
+
       - name: Get repository info
         uses: gacts/github-slug@v1
         id: slug
