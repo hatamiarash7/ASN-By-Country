@@ -14,6 +14,20 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
+  sync:
+    name: ♻️ Synchronize
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Synchronize
+        uses: hatamiarash7/repo-sync@v0.1.1
+        with:
+          url: https://gitlab.com/hatamiarash7/asn-by-country.git
+          username: hatamiarash7
+          token: ${{ secrets.GITLAB_TOKEN }}
+
   docker:
     name: 🐳 Build Docker image
     runs-on: ubuntu-20.04
@@ -21,12 +35,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - uses: hatamiarash7/repo-sync@v0.1.1
-        with:
-          url: https://gitlab.com/hatamiarash7/asn-by-country.git
-          username: hatamiarash7
-          token: ${{ secrets.GITLAB_TOKEN }}
 
       - name: Get repository info
         uses: gacts/github-slug@v1
