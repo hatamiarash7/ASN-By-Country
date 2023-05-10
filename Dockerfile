@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM python:3.9.5-slim-buster
+FROM --platform=$BUILDPLATFORM python:3.10.6-slim-buster
 
 ARG APP_VERSION="undefined@docker"
 
@@ -17,8 +17,8 @@ WORKDIR /app
 
 COPY ./requirements.txt /app/
 
-RUN pip3 install --no-cache-dir pip \
- && pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir pip &&
+    pip3 install --no-cache-dir -r requirements.txt
 
 COPY . .
 
