@@ -29,7 +29,7 @@ response.raise_for_status()
 soup = BeautifulSoup(response.text, 'lxml')
 
 # Obtain information from tag <table>
-table = soup.find('table', attrs={'class': 'delegs ripencc'})
+table = soup.find('table', attrs={'class': 'delegs asn ripencc'})
 
 # Obtain headers
 headers = [header.text for header in table.find_all('th')]
@@ -44,7 +44,7 @@ with open(file='ranges.txt', mode='w', encoding='UTF-8') as ranges_file:
         if row[6] == 'Allocated':
             SEP = ',' if row_index != len(rows) - 1 else ''
             ranges_file.write(row[3] + SEP)
-        data = data.append(dict(zip(headers[1:], row)), ignore_index=True)
+        data = data._append(dict(zip(headers[1:], row)), ignore_index=True)
         time.sleep(0.002)
     console.log(f"Found\t[green]{len(data)}[/green] ASN's")
 
