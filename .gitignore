@@ -154,3 +154,4 @@ cython_debug/
 # Others
 asn_list.csv
 ranges.txt
+.vscode
