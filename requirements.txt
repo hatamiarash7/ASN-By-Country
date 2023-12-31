@@ -2,4 +2,4 @@ beautifulsoup4==4.12.2
 requests==2.31.0
 pandas==2.1.4
 lxml==5.0.0
-rich==13.6.0
+rich==13.7.0
