@@ -2,11 +2,12 @@
 """
 
 import argparse
-import warnings
 import time
+import warnings
+
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
 from rich.console import Console
 from rich.progress import track
 
