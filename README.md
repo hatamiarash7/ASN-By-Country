@@ -34,7 +34,7 @@ python main.py IR US --data-type all
 ### Docker
 
 ```bash
-docker run --rm  -v /results:/app hatamiarash7/asn-by-country:latest <country_code_1> <country_code_2> ... [options]
+docker run --rm  -v /results:/app/output_data hatamiarash7/asn-by-country:latest <country_code_1> <country_code_2> ... [options]
 ```
 
 ## Result
