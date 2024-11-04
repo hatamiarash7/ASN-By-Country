@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM python:3.11.4-slim-buster
+FROM python:3.11.4-slim-buster
 
 ARG APP_VERSION="undefined@docker"
 
@@ -14,10 +14,9 @@ LABEL org.opencontainers.image.title="asn-by-country" \
 
 WORKDIR /app
 
-COPY ./requirements.txt /app/
+COPY requirements.txt .
 
-RUN pip3 install --no-cache-dir pip \
-    && pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY . .
 
