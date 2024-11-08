@@ -9,7 +9,7 @@ LABEL org.opencontainers.image.title="asn-by-country" \
       org.opencontainers.image.vendor="hatamiarash7" \
       org.opencontainers.image.author="hatamiarash7" \
       org.opencontainers.version="$APP_VERSION" \
-      org.opencontainers.image.created="$DATE_CREATED" \
+      org.opencontainers.image.created="$(date --iso-8601=seconds)" \
       org.opencontainers.image.licenses="MIT"
 
 WORKDIR /app
