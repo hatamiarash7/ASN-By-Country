@@ -1,4 +1,7 @@
-"""This script retrieves AS numbers, IPv4, and/or IPv6 addresses with prefixes for one or more given country codes."""
+"""
+This script retrieves AS numbers, IPv4, and/or IPv6 addresses
+with prefixes for one or more given country codes.
+"""
 
 import argparse
 import os
@@ -18,9 +21,13 @@ console = Console(log_path=False)
 
 # Argument parsing
 parser = argparse.ArgumentParser(
-    description="Get AS numbers, IPv4, and/or IPv6 allocations of one or more countries"
+    description="Get AS numbers, IPv4, and/or IPv6 allocations of one or more countries"  # noqa: E501
 )
-parser.add_argument("countries", nargs="+", help="Country codes (e.g., 'FR', 'US')")
+parser.add_argument(
+    "countries",
+    nargs="+",
+    help="Country codes (e.g., 'FR', 'US')",
+)
 parser.add_argument(
     "--data-type",
     choices=["asn", "ipv4", "ipv6", "all"],
@@ -34,9 +41,9 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; ASNumberFetcher/1.0)"}
 
 # Base URLs
 BASE_URLS = {
-    "asn": "https://www-public.imtbs-tsp.eu/~maigron/RIR_Stats/RIR_Delegations/Delegations/ASN/{country}-asn-delegations.html",
-    "ipv4": "https://www-public.imtbs-tsp.eu/~maigron/rir-stats/rir-delegations/delegations/ipv4/{country}-ipv4-delegations.html",
-    "ipv6": "https://www-public.imtbs-tsp.eu/~maigron/rir-stats/rir-delegations/delegations/ipv6/{country}-ipv6-delegations.html",
+    "asn": "https://www-public.imtbs-tsp.eu/~maigron/rir-stats/rir-delegations/delegations/asn/{country}-asn-delegations.html",  # noqa: E501
+    "ipv4": "https://www-public.imtbs-tsp.eu/~maigron/rir-stats/rir-delegations/delegations/ipv4/{country}-ipv4-delegations.html",  # noqa: E501
+    "ipv6": "https://www-public.imtbs-tsp.eu/~maigron/rir-stats/rir-delegations/delegations/ipv6/{country}-ipv6-delegations.html",  # noqa: E501
 }
 
 
@@ -49,10 +56,13 @@ def fetch_data(country_code, data_type):
         soup = BeautifulSoup(response.text, "lxml")
 
         # Locate the table
-        table = soup.find("table", attrs={"class": f"delegs {data_type} ripencc"})
+        table = soup.find(
+            "table",
+            attrs={"class": f"delegs {data_type} ripencc"},
+        )
         if not table:
             console.log(
-                f"[yellow]No data table found for {data_type.upper()} in {country_code}.[/yellow]"
+                f"[yellow]No data table found for {data_type.upper()} in {country_code}.[/yellow]"  # noqa: E501
             )
             return country_code, data_type, None, None
 
@@ -70,7 +80,7 @@ def fetch_data(country_code, data_type):
                 data_rows.append(row_data)
 
                 if data_type == "asn" and columns[6] == "Allocated":
-                    allocations.append(columns[3])  # Collect allocateds
+                    allocations.append(columns[3])  # Collect allocated ASNs
                 elif data_type in ["ipv4", "ipv6"] and columns[7] == "Allocated":
                     ip_with_prefix = f"{columns[3]}{columns[4].strip()}"
                     allocations.append(ip_with_prefix)
@@ -79,7 +89,7 @@ def fetch_data(country_code, data_type):
 
     except requests.exceptions.RequestException as e:
         console.log(
-            f"[red]Error fetching {data_type.upper()} data for {country_code}: {e}[/red]"
+            f"[red]Error fetching {data_type.upper()} data for {country_code}: {e}[/red]"  # noqa: E501
         )
         return country_code, data_type, None, None
 
@@ -105,7 +115,9 @@ with ThreadPoolExecutor() as executor:
     ]
 
     for future in track(
-        as_completed(futures), total=len(futures), description="Processing data..."
+        as_completed(futures),
+        total=len(futures),
+        description="Processing data...",
     ):
         country_code, data_type, data_rows, allocations = future.result()
         if data_rows is not None:
@@ -116,17 +128,20 @@ with ThreadPoolExecutor() as executor:
             )
             df.to_csv(csv_filename, index=False)
 
-            # Improved readability with a new console instance and starting space
+            # Improve readability with a new console instance
             console_no_time.log(
-                f" [green]Data saved for {data_type.upper()} in {country_code}[/green]"
+                f" [green]Data saved for {data_type.upper()} in {country_code}[/green]"  # noqa: E501
             )
 
             # Write IP or ASN ranges to ranges file
             if data_type in ["asn", "ipv4", "ipv6"]:
-                range_file_path = os.path.join(output_dir, f"{data_type}_ranges.txt")
+                range_file_path = os.path.join(
+                    output_dir,
+                    f"{data_type}_ranges.txt",
+                )
                 with open(range_file_path, "a", encoding="UTF-8") as range_file:
                     range_file.write(",".join(allocations) + "\n")
 
 console.log(
-    f"[green]Completed fetching data for {len(args.countries)} countries.[/green]"
+    f"[green]Completed fetching data for {len(args.countries)} countries.[/green]"  # noqa: E501
 )
