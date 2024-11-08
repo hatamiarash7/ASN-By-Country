@@ -2,7 +2,6 @@
 LICENSE
 Makefile
 README.md
-*.txt
-*.csv
+output_data
 .vscode
 .venv
