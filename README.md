@@ -7,27 +7,51 @@ It's a simple script to get ASN delegations list of specific country. I'm using 
 ## Usage
 
 ```bash
-python main.py <country>
+python main.py <country_code_1> <country_code_2> ... [options]
 ```
 
-Example:
+### Optional Arguments
+
+- `--data-type <type>`:
+  Specify which type of data to fetch. The options are:
+
+  - `asn`: Retrieve only AS numbers (default).
+  - `ipv4`: Retrieve only IPv4 addresses.
+  - `ipv6`: Retrieve only IPv6 addresses.
+  - `all`: Retrieve AS numbers, IPv4 addresses, and IPv6 addresses.
+
+  **Default**: `asn`
+
+## Examples
 
 ```bash
-python main.py IR
+python main.py IR US FR
+
+python main.py IR --data-type asn
+
+python main.py IR US --data-type all
 ```
 
 ### Docker
 
 ```bash
-docker run --rm  -v /results:/app hatamiarash7/asn-by-country:latest <country>
+docker run --rm  -v /results:/app/output_data hatamiarash7/asn-by-country:latest <country_code_1> <country_code_2> ... [options]
 ```
 
 ## Result
 
-This script will generate two file:
+The output of the ASN By Country script will be generated in the `output_data` directory. The following files will be created based on the specified country codes, and they will contain ASN delegation information for both IPv4 and IPv6 addresses.
 
-- `asn_list.csv`: Contains the information
-- `ranges.txt`: Contains all ASN ranges
+### File List and Descriptions
+
+| File Name                 | Description                                                   |
+| ------------------------- | ------------------------------------------------------------- |
+| `{Country}_asn_list.csv`  | Contains a list of ASN delegations for specified country.     |
+| `{Country}_ipv4_list.csv` | Contains IPv4-specific ASN delegations for specified country. |
+| `{Country}_ipv6_list.csv` | Contains IPv6-specific ASN delegations for specified country. |
+| `asn_ranges.txt`          | Contains a list of all ASN ranges across countries.           |
+| `ipv4_ranges.txt`         | Contains a list of all IPv4 ranges.                           |
+| `ipv6_ranges.txt`         | Contains a list of all IPv6 ranges.                           |
 
 ---
 

@@ -2,8 +2,7 @@ install: ## Install the requirements
 	@python3 -m pip install -r requirements.txt
 
 clean: ## Clean the results
-	@rm -f ranges.txt
-	@rm -f asn_list.csv
+	@rm -f output_data
 
 run: clean ## Run the script
 	@python3 main.py IR
