@@ -16,10 +16,16 @@ warnings.simplefilter(action="ignore", category=FutureWarning)
 console = Console()
 
 # Argument parsing
-parser = argparse.ArgumentParser(description="Get AS numbers, IPv4, and/or IPv6 allocations of one or more countries")
+parser = argparse.ArgumentParser(
+    description="Get AS numbers, IPv4, and/or IPv6 allocations of one or more countries"
+)
 parser.add_argument("countries", nargs="+", help="Country codes (e.g., 'FR', 'US')")
-parser.add_argument("--data-type", choices=["asn", "ipv4", "ipv6", "all"], default="asn", 
-                    help="Specify which data to fetch: 'asn', 'ipv4', 'ipv6', or 'all'")
+parser.add_argument(
+    "--data-type",
+    choices=["asn", "ipv4", "ipv6", "all"],
+    default="asn",
+    help="Specify which data to fetch: 'asn', 'ipv4', 'ipv6', or 'all'",
+)
 args = parser.parse_args()
 
 # Set Headers
@@ -29,8 +35,9 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; ASNumberFetcher/1.0)"}
 BASE_URLS = {
     "asn": "https://www-public.imtbs-tsp.eu/~maigron/RIR_Stats/RIR_Delegations/Delegations/ASN/{country}-asn-delegations.html",
     "ipv4": "https://www-public.imtbs-tsp.eu/~maigron/rir-stats/rir-delegations/delegations/ipv4/{country}-ipv4-delegations.html",
-    "ipv6": "https://www-public.imtbs-tsp.eu/~maigron/rir-stats/rir-delegations/delegations/ipv6/{country}-ipv6-delegations.html"
+    "ipv6": "https://www-public.imtbs-tsp.eu/~maigron/rir-stats/rir-delegations/delegations/ipv6/{country}-ipv6-delegations.html",
 }
+
 
 def fetch_data(country_code, data_type):
     """Fetch ASN, IPv4, or IPv6 data for a given country code."""
@@ -43,12 +50,14 @@ def fetch_data(country_code, data_type):
         # Locate the table
         table = soup.find("table", attrs={"class": f"delegs {data_type} ripencc"})
         if not table:
-            console.log(f"[yellow]No data table found for {data_type.upper()} in {country_code}.[/yellow]")
+            console.log(
+                f"[yellow]No data table found for {data_type.upper()} in {country_code}.[/yellow]"
+            )
             return country_code, data_type, None, None
 
         # Extract headers and rows
         headers = [header.text.strip() for header in table.find_all("th")]
-        rows = table.find_all("tr")[2:] 
+        rows = table.find_all("tr")[2:]
 
         # Collect data rows
         data_rows = []
@@ -56,9 +65,9 @@ def fetch_data(country_code, data_type):
         for row in rows:
             columns = [td.text.strip() for td in row.find_all("td")]
             if columns:
-                row_data = dict(zip(headers[1:], columns)) 
+                row_data = dict(zip(headers[1:], columns))
                 data_rows.append(row_data)
-                
+
                 if data_type == "asn" and columns[6] == "Allocated":
                     allocations.append(columns[3])  # Collect allocateds
                 elif data_type in ["ipv4", "ipv6"] and columns[7] == "Allocated":
@@ -68,8 +77,11 @@ def fetch_data(country_code, data_type):
         return country_code, data_type, data_rows, allocations
 
     except requests.exceptions.RequestException as e:
-        console.log(f"[red]Error fetching {data_type.upper()} data for {country_code}: {e}[/red]")
+        console.log(
+            f"[red]Error fetching {data_type.upper()} data for {country_code}: {e}[/red]"
+        )
         return country_code, data_type, None, None
+
 
 # Run fetch requests in parallel
 country_data = {}
@@ -82,19 +94,27 @@ console.log("\t[blue]Fetching data for countries...[/blue]")
 data_types = [args.data_type] if args.data_type != "all" else ["asn", "ipv4", "ipv6"]
 
 with ThreadPoolExecutor() as executor:
-    futures = [executor.submit(fetch_data, country, data_type) 
-               for country in args.countries 
-               for data_type in data_types]
+    futures = [
+        executor.submit(fetch_data, country, data_type)
+        for country in args.countries
+        for data_type in data_types
+    ]
 
-    for future in track(as_completed(futures), total=len(futures), description="Processing data..."):
+    for future in track(
+        as_completed(futures), total=len(futures), description="Processing data..."
+    ):
         country_code, data_type, data_rows, allocations = future.result()
         if data_rows is not None:
 
             # Save data to CSV for each country and type
             df = pd.DataFrame(data_rows)
-            csv_filename = os.path.join(output_dir, f"{country_code}_{data_type}_list.csv")
+            csv_filename = os.path.join(
+                output_dir, f"{country_code}_{data_type}_list.csv"
+            )
             df.to_csv(csv_filename, index=False)
-            console.log(f"[green]Data saved for {data_type.upper()} in {country_code}[/green]")
+            console.log(
+                f"[green]Data saved for {data_type.upper()} in {country_code}[/green]"
+            )
 
             # Write IP or ASN ranges to ranges file
             if data_type in ["asn", "ipv4", "ipv6"]:
@@ -102,4 +122,6 @@ with ThreadPoolExecutor() as executor:
                 with open(range_file_path, "a", encoding="UTF-8") as range_file:
                     range_file.write(",".join(allocations) + "\n")
 
-console.log(f"[green]Completed fetching data for {len(args.countries)} countries.[/green]")
+console.log(
+    f"[green]Completed fetching data for {len(args.countries)} countries.[/green]"
+)
