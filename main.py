@@ -13,7 +13,7 @@ import os
 # Suppress FutureWarnings
 warnings.simplefilter(action="ignore", category=FutureWarning)
 
-console = Console()
+console = Console(log_path=False)
 
 # Argument parsing
 parser = argparse.ArgumentParser(
@@ -88,10 +88,13 @@ country_data = {}
 output_dir = "output_data"
 os.makedirs(output_dir, exist_ok=True)
 
-console.log("\t[blue]Fetching data for countries...[/blue]")
+console.log("[blue]Fetching data for countries...[/blue]")
 
 # Prepare to fetch all specified data types
 data_types = [args.data_type] if args.data_type != "all" else ["asn", "ipv4", "ipv6"]
+
+# Create a new console instance for cleaner logging within the progress bar
+console_no_time = Console(log_path=False, log_time=False)
 
 with ThreadPoolExecutor() as executor:
     futures = [
@@ -105,15 +108,16 @@ with ThreadPoolExecutor() as executor:
     ):
         country_code, data_type, data_rows, allocations = future.result()
         if data_rows is not None:
-
             # Save data to CSV for each country and type
             df = pd.DataFrame(data_rows)
             csv_filename = os.path.join(
                 output_dir, f"{country_code}_{data_type}_list.csv"
             )
             df.to_csv(csv_filename, index=False)
-            console.log(
-                f"[green]Data saved for {data_type.upper()} in {country_code}[/green]"
+
+            # Improved readability with a new console instance and starting space
+            console_no_time.log(
+                f" [green]Data saved for {data_type.upper()} in {country_code}[/green]"
             )
 
             # Write IP or ASN ranges to ranges file
