@@ -12,7 +12,7 @@ python main.py <country_code_1> <country_code_2> ... [options]
 
 ### Optional Arguments
 
-- `--data-type <type>`: 
+- `--data-type <type>`:
   Specify which type of data to fetch. The options are:
   - `asn`: Retrieve only AS numbers (default).
   - `ipv4`: Retrieve only IPv4 addresses.
@@ -21,7 +21,7 @@ python main.py <country_code_1> <country_code_2> ... [options]
   
   **Default**: `asn`
 
-## Examples:
+## Examples
 
 ```bash
 python main.py IR US FR
@@ -43,15 +43,14 @@ The output of the ASN By Country script will be generated in the `output_data` d
 
 ### File List and Descriptions
 
-| File Name                  | Description                                                         |
-|----------------------------|---------------------------------------------------------------------|
-| `{Country}_asn_list.csv`   | Contains a list of ASN delegations for specified country.           |
-| `{Country}_ipv4_list.csv`  | Contains IPv4-specific ASN delegations for specified country.       |
-| `{Country}_ipv6_list.csv`  | Contains IPv6-specific ASN delegations for specified country.       |
-| `asn_ranges.txt`           | Contains a list of all ASN ranges across countries.                 |
-| `ipv4_ranges.txt`          | Contains a list of all IPv4 ranges.                                 |
-| `ipv6_ranges.txt`          | Contains a list of all IPv6 ranges.                                 |
-
+| File Name                 | Description                                                   |
+| ------------------------- | ------------------------------------------------------------- |
+| `{Country}_asn_list.csv`  | Contains a list of ASN delegations for specified country.     |
+| `{Country}_ipv4_list.csv` | Contains IPv4-specific ASN delegations for specified country. |
+| `{Country}_ipv6_list.csv` | Contains IPv6-specific ASN delegations for specified country. |
+| `asn_ranges.txt`          | Contains a list of all ASN ranges across countries.           |
+| `ipv4_ranges.txt`         | Contains a list of all IPv4 ranges.                           |
+| `ipv6_ranges.txt`         | Contains a list of all IPv6 ranges.                           |
 
 ---
 
