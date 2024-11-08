@@ -1,14 +1,15 @@
 """This script retrieves AS numbers, IPv4, and/or IPv6 addresses with prefixes for one or more given country codes."""
 
 import argparse
+import os
+import warnings
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from rich.console import Console
 from rich.progress import track
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import pandas as pd
-import warnings
-import os
 
 # Suppress FutureWarnings
 warnings.simplefilter(action="ignore", category=FutureWarning)

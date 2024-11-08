@@ -14,11 +14,12 @@ python main.py <country_code_1> <country_code_2> ... [options]
 
 - `--data-type <type>`:
   Specify which type of data to fetch. The options are:
+
   - `asn`: Retrieve only AS numbers (default).
   - `ipv4`: Retrieve only IPv4 addresses.
   - `ipv6`: Retrieve only IPv6 addresses.
   - `all`: Retrieve AS numbers, IPv4 addresses, and IPv6 addresses.
-  
+
   **Default**: `asn`
 
 ## Examples
