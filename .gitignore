@@ -155,3 +155,4 @@ cython_debug/
 asn_list.csv
 ranges.txt
 .vscode
+output_data
