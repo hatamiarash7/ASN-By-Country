@@ -2,3 +2,7 @@
 LICENSE
 Makefile
 README.md
+*.txt
+*.csv
+.vscode
+.venv
