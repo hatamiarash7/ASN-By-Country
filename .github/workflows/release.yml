@@ -16,11 +16,11 @@ jobs:
 
   docker:
     name: 🐳 Build Docker image
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: init
     steps:
       - name: Checkout
-        uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
 
       - name: Get repository info
         uses: gacts/github-slug@v1
@@ -50,7 +50,7 @@ jobs:
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
 
       - name: Build & Push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile
