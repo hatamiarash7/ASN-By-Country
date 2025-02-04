@@ -1,6 +1,6 @@
 pandas==2.2.3
 requests==2.32.3
-beautifulsoup4==4.13.1
+beautifulsoup4==4.13.3
 rich==13.9.4
 numpy==2.2.2
 pybind11>=2.12
