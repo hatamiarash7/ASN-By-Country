@@ -13,8 +13,6 @@ on:
     paths:
       - "main.py"
       - ".github/workflows/gitguardian.yml"
-  schedule:
-    - cron: "0 10 * * 6"
   workflow_dispatch:
 
 jobs:
