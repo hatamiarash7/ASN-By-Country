@@ -51,7 +51,7 @@ def fetch_data(country_code, data_type):
     """Fetch ASN, IPv4, or IPv6 data for a given country code."""
     url = BASE_URLS[data_type].format(country=country_code.lower())
     try:
-        response = requests.get(url, headers=HEADERS)
+        response = requests.get(url=url, headers=HEADERS, timeout=5)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "lxml")
 
@@ -96,8 +96,8 @@ def fetch_data(country_code, data_type):
 
 # Run fetch requests in parallel
 country_data = {}
-output_dir = "output_data"
-os.makedirs(output_dir, exist_ok=True)
+OUTPUT_DIR = "output_data"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 console.log("[blue]Fetching data for countries...[/blue]")
 
@@ -124,7 +124,7 @@ with ThreadPoolExecutor() as executor:
             # Save data to CSV for each country and type
             df = pd.DataFrame(data_rows)
             csv_filename = os.path.join(
-                output_dir, f"{country_code}_{data_type}_list.csv"
+                OUTPUT_DIR, f"{country_code}_{data_type}_list.csv"
             )
             df.to_csv(csv_filename, index=False)
 
@@ -136,7 +136,7 @@ with ThreadPoolExecutor() as executor:
             # Write IP or ASN ranges to ranges file
             if data_type in ["asn", "ipv4", "ipv6"]:
                 range_file_path = os.path.join(
-                    output_dir,
+                    OUTPUT_DIR,
                     f"{data_type}_ranges.txt",
                 )
                 with open(range_file_path, "a", encoding="UTF-8") as range_file:
