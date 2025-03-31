@@ -5,3 +5,4 @@ README.md
 output_data
 .vscode
 .venv
+.flake8
