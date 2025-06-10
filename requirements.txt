@@ -1,5 +1,5 @@
 pandas==2.3.0
-requests==2.32.3
+requests==2.32.4
 beautifulsoup4==4.13.4
 rich==14.0.0
 numpy==2.3.0
