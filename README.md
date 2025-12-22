@@ -32,11 +32,41 @@ python main.py IR --data-type asn
 python main.py IR US --data-type all
 ```
 
-### Docker
+## use makefile
 
+create virtual environment and install dependency
+```bash
+make env
+make deps
+```
+
+Run the program
+```bash
+make run ARGS="US"
+```
+
+Clean outputs
+```bash
+make clean
+```
+
+### Run with Docker
 ```bash
 docker run --rm  -v /results:/app/output_data hatamiarash7/asn-by-country:latest <country_code_1> <country_code_2> ... [options]
 ```
+
+use makefile
+```bash
+make docker-run ARGS="IR"
+make docker-run ARGS="US DE"
+```
+
+build docker image only
+
+```bash
+make docker-build
+```
+
 
 ## Result
 
