@@ -1,20 +1,20 @@
 # --------------------------
 # Builder Stage
 # --------------------------
-FROM python:3.12-slim AS builder
+FROM python:3.13-slim AS builder
 
 # --------------------------
 # Metadata
 # --------------------------
 ARG APP_VERSION="undefined@docker"
 LABEL org.opencontainers.image.title="asn-by-country" \
-      org.opencontainers.image.description="Get ASN delegations list of specific country" \
-      org.opencontainers.image.url="https://github.com/hatamiarash7/ASN-By-Country" \
-      org.opencontainers.image.source="https://github.com/hatamiarash7/ASN-By-Country" \
-      org.opencontainers.image.vendor="hatamiarash7" \
-      org.opencontainers.image.authors="hatamiarash7" \
-      org.opencontainers.image.version="${APP_VERSION}" \
-      org.opencontainers.image.licenses="MIT"
+    org.opencontainers.image.description="Get ASN delegations list of specific country" \
+    org.opencontainers.image.url="https://github.com/hatamiarash7/ASN-By-Country" \
+    org.opencontainers.image.source="https://github.com/hatamiarash7/ASN-By-Country" \
+    org.opencontainers.image.vendor="hatamiarash7" \
+    org.opencontainers.image.authors="hatamiarash7" \
+    org.opencontainers.image.version="${APP_VERSION}" \
+    org.opencontainers.image.licenses="MIT"
 
 # --------------------------
 # Working directory & environment
@@ -29,12 +29,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # --------------------------
 COPY requirements.txt .
 RUN pip install --upgrade pip \
- && pip install --no-cache-dir --prefix=/install -r requirements.txt
+    && pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 # --------------------------
 # Runtime Stage
 # --------------------------
-FROM python:3.12-slim AS runtime
+FROM python:3.13-slim AS runtime
 
 WORKDIR /app
 
@@ -46,8 +46,8 @@ COPY . .
 
 # Create non-root user and output folder
 RUN useradd -m appuser \
- && mkdir -p /app/output_data \
- && chown -R appuser:appuser /app
+    && mkdir -p /app/output_data \
+    && chown -R appuser:appuser /app
 
 USER appuser
 
