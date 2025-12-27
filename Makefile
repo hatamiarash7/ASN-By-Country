@@ -1,29 +1,26 @@
 SHELL := /bin/bash
-
 APP_NAME := asn-by-country
 IMAGE := $(APP_NAME):latest
 OUTPUT_DIR := $(PWD)/output_data
 ARGS ?=
-
 
 # --------------------------
 # Local Python Targets
 # --------------------------
 
 env: ## Create Python virtual environment
-	python3 -m venv env
+	python3 -m venv .venv
 
 deps: env ## Install dependencies in virtual environment
-	env/bin/pip install --upgrade pip
-	env/bin/pip install -r requirements.txt
+	.venv/bin/pip install --upgrade pip
+	.venv/bin/pip install -r requirements.txt
 
 run: clean deps ## Run app locally using virtual environment
-	env/bin/python main.py $(ARGS)
+	.venv/bin/python main.py $(ARGS)
 
 install: ## Install dependencies system-wide
 	python3 -m pip install --upgrade pip
 	python3 -m pip install -r requirements.txt
-
 
 # --------------------------
 # Docker Targets
@@ -35,8 +32,6 @@ docker-build: ## Build Docker image
 docker-run: docker-build ## Run app in Docker with host output folder
 	mkdir -p $(OUTPUT_DIR)
 	docker run --rm -v $(OUTPUT_DIR):/app/output_data $(IMAGE) $(ARGS)
-
-
 
 # --------------------------
 # Cleanup
