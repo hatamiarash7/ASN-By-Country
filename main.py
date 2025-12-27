@@ -21,7 +21,7 @@ from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, PageElement
 from requests.exceptions import RequestException
 from rich.console import Console
 
@@ -39,13 +39,13 @@ console = Console(log_path=False)
 class DataFetcher:
     """Handles fetching and processing of country network data."""
 
-    BASE_URLS = {
+    BASE_URLS: dict[str, str] = {
         "asn": "https://www-public.imtbs-tsp.eu/~maigron/rir-stats/rir-delegations/delegations/asn/{country}-asn-delegations.html",
         "ipv4": "https://www-public.imtbs-tsp.eu/~maigron/rir-stats/rir-delegations/delegations/ipv4/{country}-ipv4-delegations.html",
         "ipv6": "https://www-public.imtbs-tsp.eu/~maigron/rir-stats/rir-delegations/delegations/ipv6/{country}-ipv6-delegations.html",
     }
 
-    HEADERS = {
+    HEADERS: dict[str, str] = {
         "User-Agent": "CountryNetworkScraper/1.0 (+https://github.com/yourusername/network-scraper)",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.5",
@@ -69,11 +69,11 @@ class DataFetcher:
             - data_rows: List of dictionaries with table data (None if error)
             - allocations: List of allocated resources (None if error)
         """
-        url = DataFetcher.BASE_URLS[data_type].format(country=country_code.lower())
+        url: str = DataFetcher.BASE_URLS[data_type].format(country=country_code.lower())
 
         try:
             # Fetch the HTML content
-            response = requests.get(
+            response: requests.Response = requests.get(
                 url=url,
                 headers=DataFetcher.HEADERS,
                 timeout=DEFAULT_TIMEOUT,
@@ -82,7 +82,9 @@ class DataFetcher:
 
             # Parse the HTML
             soup = BeautifulSoup(response.text, "lxml")
-            table = soup.find("table", attrs={"class": f"delegs {data_type} ripencc"})
+            table: PageElement | None = soup.find(
+                "table", attrs={"class": f"delegs {data_type} ripencc"}
+            )
 
             if not table:
                 console.log(
@@ -91,18 +93,18 @@ class DataFetcher:
                 return country_code, data_type, None, None
 
             # Process table headers and rows
-            headers = [header.text.strip() for header in table.find_all("th")]
-            rows = table.find_all("tr")[2:]  # Skip header rows
+            headers: list = [header.text.strip() for header in table.find_all("th")]
+            rows: list[PageElement] = table.find_all("tr")[2:]  # Skip header rows
 
-            data_rows = []
-            allocations = []
+            data_rows: list = []
+            allocations: list = []
 
             for row in rows:
-                columns = [td.text.strip() for td in row.find_all("td")]
+                columns: list = [td.text.strip() for td in row.find_all("td")]
                 if not columns:
                     continue
 
-                row_data = dict(zip(headers[1:], columns))
+                row_data: dict = dict(zip(headers[1:], columns))
                 data_rows.append(row_data)
 
                 # Extract allocated resources based on data type
@@ -144,7 +146,7 @@ def save_data(
 
         # Save detailed data to CSV
         if data_rows:
-            csv_filename = os.path.join(
+            csv_filename: str = os.path.join(
                 OUTPUT_DIR, f"{country_code}_{data_type}_list.csv"
             )
             pd.DataFrame(data_rows).to_csv(csv_filename, index=False)
@@ -154,7 +156,7 @@ def save_data(
 
         # Save allocations to ranges file
         if allocations:
-            range_file_path = os.path.join(OUTPUT_DIR, f"{data_type}_ranges.txt")
+            range_file_path: str = os.path.join(OUTPUT_DIR, f"{data_type}_ranges.txt")
             with open(range_file_path, "a", encoding="utf-8") as range_file:
                 range_file.write(",".join(allocations) + "\n")
             console.log(
@@ -194,10 +196,10 @@ def main() -> None:
         default=MAX_WORKERS,
         help=f"Maximum number of concurrent workers (default: {MAX_WORKERS})",
     )
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
 
     # Determine data types to fetch
-    data_types = (
+    data_types: list[str] = (
         [args.data_type] if args.data_type != "all" else ["asn", "ipv4", "ipv6"]
     )
 
@@ -207,7 +209,7 @@ def main() -> None:
 
     # Process data using ThreadPoolExecutor
     with ThreadPoolExecutor(max_workers=args.max_workers) as executor:
-        futures = [
+        futures: list = [
             executor.submit(DataFetcher.fetch_data, country, data_type)
             for country in args.countries
             for data_type in data_types
