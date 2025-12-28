@@ -154,5 +154,22 @@ cython_debug/
 # Others
 asn_list.csv
 ranges.txt
-.vscode
-output_data
+.vscode/
+output_data/
+
+# Test reports
+junit.xml
+coverage_html/
+
+# Ruff
+.ruff_cache/
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
