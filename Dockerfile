@@ -1,7 +1,7 @@
 # --------------------------
 # Builder Stage
 # --------------------------
-FROM python:3.14-slim AS builder
+FROM python:3.13-slim AS builder
 
 # --------------------------
 # Metadata
@@ -22,7 +22,9 @@ LABEL org.opencontainers.image.title="asn-by-country" \
 WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_ROOT_USER_ACTION=ignore
+    PIP_ROOT_USER_ACTION=ignore \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # --------------------------
 # Install dependencies
@@ -34,15 +36,15 @@ RUN pip install --upgrade pip \
 # --------------------------
 # Runtime Stage
 # --------------------------
-FROM python:3.14-slim AS runtime
+FROM python:3.13-slim AS runtime
 
 WORKDIR /app
 
 # Copy installed packages from builder
 COPY --from=builder /install /usr/local
 
-# Copy application code
-COPY . .
+# Copy application code (only src directory for modular structure)
+COPY src/ ./src/
 
 # Create non-root user and output folder
 RUN useradd -m appuser \
@@ -52,4 +54,4 @@ RUN useradd -m appuser \
 USER appuser
 
 # Default entrypoint
-ENTRYPOINT ["python", "main.py"]
+ENTRYPOINT ["python", "-m", "src.cli"]
