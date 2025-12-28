@@ -37,7 +37,9 @@ class TestDataFetcher:
         assert result.is_success is True
         assert result.country_code == "IR"
         assert result.data_type == "asn"
+        assert result.data_rows is not None
         assert len(result.data_rows) == 3
+        assert result.allocations is not None
         assert "AS12880" in result.allocations
         assert "AS25124" in result.allocations
         # AS99999 should NOT be in allocations (Reserved, not Allocated)
@@ -55,7 +57,9 @@ class TestDataFetcher:
         result = fetcher.fetch("IR", "ipv4")
 
         assert result.is_success is True
+        assert result.data_rows is not None
         assert len(result.data_rows) == 2
+        assert result.allocations is not None
         assert "5.22.0.0/19" in result.allocations
         # 5.23.0.0/20 should NOT be in allocations (Reserved)
         assert "5.23.0.0/20" not in result.allocations
@@ -72,6 +76,7 @@ class TestDataFetcher:
         result = fetcher.fetch("XX", "asn")
 
         assert result.is_success is False
+        assert result.error is not None
         assert "No data table found" in result.error
 
     @patch("src.scraper.requests.get")
@@ -83,6 +88,7 @@ class TestDataFetcher:
         result = fetcher.fetch("IR", "asn")
 
         assert result.is_success is False
+        assert result.error is not None
         assert "Request error" in result.error
 
     @patch("src.scraper.requests.get")
@@ -94,6 +100,7 @@ class TestDataFetcher:
         result = fetcher.fetch("IR", "asn")
 
         assert result.is_success is False
+        assert result.error is not None
         assert "Request error" in result.error
 
     @patch("src.scraper.requests.get")

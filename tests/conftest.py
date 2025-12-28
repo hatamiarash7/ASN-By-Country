@@ -1,6 +1,7 @@
 """Pytest configuration and fixtures."""
 
 import tempfile
+from collections.abc import Generator
 from unittest.mock import Mock
 
 import pytest
@@ -54,7 +55,7 @@ def sample_html_no_table() -> str:
 
 
 @pytest.fixture
-def temp_output_dir():
+def temp_output_dir() -> Generator[str]:
     """Create a temporary output directory."""
     with tempfile.TemporaryDirectory() as tmpdir:
         yield tmpdir

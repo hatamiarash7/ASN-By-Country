@@ -84,10 +84,10 @@ def validate_country_codes(countries: Sequence[str]) -> list[str]:
     """
     validated: list[str] = []
     for code in countries:
-        code: str = code.strip().upper()
-        if len(code) != 2 or not code.isalpha():
-            raise ValueError(f"Invalid country code: '{code}'. Must be 2 letters.")
-        validated.append(code)
+        normalized = code.strip().upper()
+        if len(normalized) != 2 or not normalized.isalpha():
+            raise ValueError(f"Invalid country code: '{normalized}'. Must be 2 letters.")
+        validated.append(normalized)
     return validated
 
 
