@@ -1,18 +1,61 @@
 # ASN By Country
 
-[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/) [![GitHub release](https://img.shields.io/github/release/hatamiarash7/ASN-By-Country.svg)](https://GitHub.com/hatamiarash7/ASN-By-Country/releases/) [![CodeQL](https://github.com/hatamiarash7/ASN-By-Country/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)](https://github.com/hatamiarash7/ASN-By-Country/actions/workflows/codeql-analysis.yml) [![GitGuardian](https://github.com/hatamiarash7/ASN-By-Country/actions/workflows/gitguardian.yml/badge.svg?branch=main)](https://github.com/hatamiarash7/ASN-By-Country/actions/workflows/gitguardian.yml) [![Release](https://github.com/hatamiarash7/ASN-By-Country/actions/workflows/release.yml/badge.svg)](https://github.com/hatamiarash7/ASN-By-Country/actions/workflows/release.yml)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![GitHub release](https://img.shields.io/github/release/hatamiarash7/ASN-By-Country.svg)](https://GitHub.com/hatamiarash7/ASN-By-Country/releases/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 
-It's a simple script to get ASN delegations list of specific country. I'm using **RIR Delegations & RIPE NCC Allocations** from [here](https://www-public.imtbs-tsp.eu/~maigron/RIR_Stats/index.html).
+A Python tool to scrape ASN (Autonomous System Number), IPv4, and IPv6 allocation data by country code from RIR delegation statistics.
+
+## Features
+
+- 🌍 Fetch network data for any country using ISO 3166-1 alpha-2 codes
+- 📊 Support for ASN, IPv4, and IPv6 data types
+- ⚡ Multi-threaded fetching for improved performance
+- 📁 Clean data output in CSV and text formats
+- 🎨 Rich console output with progress tracking
+- 🐳 Docker support for containerized execution
+
+Data source: [RIR Delegations & RIPE NCC Allocations](https://www-public.imtbs-tsp.eu/~maigron/RIR_Stats/index.html)
+
+## Installation
+
+### Using Make (recommended)
+
+```bash
+# Clone the repository
+git clone https://github.com/hatamiarash7/ASN-By-Country.git
+cd ASN-By-Country
+
+# Create virtual environment and install all dependencies
+make deps
+```
+
+### Using pip
+
+```bash
+pip install -r requirements.txt
+```
+
+### Using Docker
+
+```bash
+docker build -t asn-by-country .
+```
 
 ## Usage
 
 ```bash
 python main.py <country_code_1> <country_code_2> ... [options]
+
+# Or using the module
+python -m src.cli <country_code_1> <country_code_2> ... [options]
 ```
 
 ### Optional Arguments
 
-- `--data-type <type>`:
+- `-d, --data-type <type>`:
   Specify which type of data to fetch. The options are:
 
   - `asn`: Retrieve only AS numbers (default).
@@ -20,53 +63,63 @@ python main.py <country_code_1> <country_code_2> ... [options]
   - `ipv6`: Retrieve only IPv6 addresses.
   - `all`: Retrieve AS numbers, IPv4 addresses, and IPv6 addresses.
 
-  **Default**: `asn`
+- `-w, --max-workers <N>`: Maximum concurrent workers (default: 5)
+- `-q, --quiet`: Suppress progress output
+- `-v, --version`: Show version
 
 ## Examples
 
 ```bash
+# Fetch ASN data for multiple countries
 python main.py IR US FR
 
+# Fetch only ASN data
 python main.py IR --data-type asn
 
+# Fetch all data types
 python main.py IR US --data-type all
+
+# Using quiet mode with more workers
+python main.py IR US DE --quiet --max-workers 10
 ```
 
-## use makefile
-
-create virtual environment and install dependency
+## Using Makefile
 
 ```bash
-make env
+# Create virtual environment and install dependencies
 make deps
-```
 
-Run the program
-
-```bash
+# Run the program
 make run ARGS="US"
-```
+make run ARGS="IR US DE --data-type all"
 
-Clean outputs
+# Run linters and type checker
+make check
 
-```bash
+# Run tests with coverage
+make test-cov
+
+# Clean outputs
 make clean
+
+# Show all available targets
+make help
 ```
 
 ### Run with Docker
 
 ```bash
-docker run --rm  -v /results:/app/output_data hatamiarash7/asn-by-country:latest <country_code_1> <country_code_2> ... [options]
+docker run --rm -v /results:/app/output_data hatamiarash7/asn-by-country:latest <country_code_1> <country_code_2> ... [options]
 ```
 
-use makefile
+Using makefile:
 
 ```bash
 make docker-run ARGS="IR"
 make docker-run ARGS="US DE"
 ```
 
-build docker image only
+Build docker image only:
 
 ```bash
 make docker-build
@@ -74,9 +127,7 @@ make docker-build
 
 ## Result
 
-The output of the ASN By Country script will be generated in the `output_data` directory. The following files will be created based on the specified country codes, and they will contain ASN delegation information for both IPv4 and IPv6 addresses.
-
-### File List and Descriptions
+The output will be generated in the `output_data` directory:
 
 | File Name                 | Description                                                   |
 | ------------------------- | ------------------------------------------------------------- |
@@ -86,6 +137,44 @@ The output of the ASN By Country script will be generated in the `output_data` d
 | `asn_ranges.txt`          | Contains a list of all ASN ranges across countries.           |
 | `ipv4_ranges.txt`         | Contains a list of all IPv4 ranges.                           |
 | `ipv6_ranges.txt`         | Contains a list of all IPv6 ranges.                           |
+
+## Development
+
+### Project Structure
+
+```
+ASN-By-Country/
+├── src/                    # Source code
+│   ├── cli.py              # Command-line interface
+│   ├── config.py           # Configuration constants
+│   ├── models.py           # Data models
+│   ├── scraper.py          # Web scraping logic
+│   └── storage.py          # File storage operations
+├── tests/                  # Unit tests
+├── Dockerfile
+├── Makefile
+├── pyproject.toml          # Project configuration
+├── requirements.txt        # Production dependencies
+└── requirements-dev.txt    # Development dependencies
+```
+
+### Available Make Targets
+
+| Target                       | Description                 |
+| ---------------------------- | --------------------------- |
+| `make help`                  | Show all available targets  |
+| `make deps`                  | Install all dependencies    |
+| `make run ARGS="..."`        | Run the application         |
+| `make lint`                  | Run all linters             |
+| `make format`                | Format code                 |
+| `make type-check`            | Run type checking           |
+| `make check`                 | Run all code quality checks |
+| `make test`                  | Run tests                   |
+| `make test-cov`              | Run tests with coverage     |
+| `make test-junit`            | Run tests with JUnit report |
+| `make docker-build`          | Build Docker image          |
+| `make docker-run ARGS="..."` | Run in Docker               |
+| `make clean-all`             | Remove all generated files  |
 
 ---
 
