@@ -1,0 +1,176 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=61.0", "wheel"]
+
+[project]
+authors = [
+  {name = "hatamiarash7", email = "hatamiarash7@gmail.com"},
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Internet",
+  "Topic :: System :: Networking",
+  "Typing :: Typed",
+]
+dependencies = [
+  "pandas>=2.0.0",
+  "requests>=2.31.0",
+  "beautifulsoup4>=4.12.0",
+  "rich>=13.0.0",
+  "lxml>=5.0.0",
+]
+description = "Scrape ASN, IPv4, and IPv6 allocation data by country code"
+keywords = ["asn", "networking", "scraper", "country", "ip-address"]
+license = {text = "MIT"}
+name = "asn-by-country"
+readme = "README.md"
+requires-python = ">=3.11"
+version = "1.0.0"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "pytest-cov>=6.0.0",
+  "pytest-xdist>=3.5.0",
+  "mypy>=1.14.0",
+  "ruff>=0.8.0",
+  "types-requests>=2.32.0",
+  "pandas-stubs>=2.2.0",
+]
+
+[project.scripts]
+asn-by-country = "src.cli:cli"
+
+[project.urls]
+Homepage = "https://github.com/hatamiarash7/ASN-By-Country"
+Issues = "https://github.com/hatamiarash7/ASN-By-Country/issues"
+Repository = "https://github.com/hatamiarash7/ASN-By-Country"
+
+[tool.setuptools.packages.find]
+include = ["src*"]
+where = ["."]
+
+# --------------------------
+# Ruff Configuration
+# --------------------------
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+target-version = "py313"
+
+[tool.ruff.lint]
+ignore = [
+  "E501", # line too long (handled by formatter)
+  "PLR0913", # too many arguments
+  "PLR2004", # magic value comparison
+  "PLW2901", # for loop variable overwritten
+  "B905", # zip without strict (for compatibility)
+]
+select = [
+  "E", # pycodestyle errors
+  "W", # pycodestyle warnings
+  "F", # Pyflakes
+  "I", # isort
+  "B", # flake8-bugbear
+  "C4", # flake8-comprehensions
+  "UP", # pyupgrade
+  "ARG", # flake8-unused-arguments
+  "SIM", # flake8-simplify
+  "TCH", # flake8-type-checking
+  "ERA", # eradicate (commented code)
+  "PL", # pylint
+  "RUF", # Ruff-specific rules
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ARG", "PLR2004"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+[tool.ruff.format]
+indent-style = "space"
+line-ending = "auto"
+quote-style = "double"
+skip-magic-trailing-comma = false
+
+# --------------------------
+# Mypy Configuration
+# --------------------------
+[tool.mypy]
+check_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+explicit_package_bases = true
+namespace_packages = true
+python_version = "3.13"
+show_error_codes = true
+strict_optional = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+module = [
+  "bs4.*",
+  "lxml.*",
+]
+
+# --------------------------
+# Pytest Configuration
+# --------------------------
+[tool.pytest.ini_options]
+addopts = [
+  "-ra",
+  "-q",
+  "--strict-markers",
+  "--strict-config",
+]
+filterwarnings = [
+  "ignore::FutureWarning",
+  "ignore::DeprecationWarning",
+]
+markers = [
+  "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+  "integration: marks tests as integration tests",
+]
+minversion = "8.0"
+python_classes = ["Test*"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+testpaths = ["tests"]
+
+# --------------------------
+# Coverage Configuration
+# --------------------------
+[tool.coverage.run]
+branch = true
+omit = [
+  "*/tests/*",
+  "*/__pycache__/*",
+]
+source = ["src"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+  "@abstractmethod",
+]
+fail_under = 70
+show_missing = true
