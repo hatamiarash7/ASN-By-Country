@@ -30,8 +30,16 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Install dependencies
 # --------------------------
 COPY requirements.txt .
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir --prefix=/install -r requirements.txt
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    gcc \
+    libxml2-dev \
+    libxslt1-dev \
+    && pip install --upgrade pip \
+    && pip install --no-cache-dir --prefix=/install -r requirements.txt \
+    && apt-get purge -y gcc \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
 
 # --------------------------
 # Runtime Stage
@@ -39,6 +47,13 @@ RUN pip install --upgrade pip \
 FROM python:3.13-slim AS runtime
 
 WORKDIR /app
+
+# Install runtime dependencies for lxml
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    libxml2 \
+    libxslt1.1 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy installed packages from builder
 COPY --from=builder /install /usr/local
