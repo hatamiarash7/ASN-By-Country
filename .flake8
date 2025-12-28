@@ -1,2 +1,13 @@
 [flake8]
+# flake8 is deprecated, using ruff instead
+# This file is kept for compatibility with older tools
 extend-ignore = E501
+max-line-length = 100
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    build,
+    dist,
+    .eggs,
+    *.egg-info
