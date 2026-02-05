@@ -91,7 +91,7 @@ jobs:
             coverage-${{ matrix.python-version }}.xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         if: matrix.python-version == '3.13'
         with:
           files: ./coverage-3.13.xml
