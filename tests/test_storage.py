@@ -98,9 +98,13 @@ class TestFileStorage:
 
         ranges_path: str = os.path.join(temp_output_dir, "asn_ranges.txt")
         with open(ranges_path) as f:
-            content: str = f.read()
+            lines: list[str] = [line.strip() for line in f.readlines()]
 
-        assert "AS12880,AS25124" in content
+        # Check that each allocation exists as a separate line
+        assert "AS12880" in lines
+        assert "AS25124" in lines
+        # Optional: check exact order
+        assert lines == ["AS12880", "AS25124"]
 
     def test_ranges_appends(self, temp_output_dir: str) -> None:
         """Test that ranges are appended for multiple countries."""
