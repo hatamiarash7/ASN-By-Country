@@ -61,6 +61,13 @@ class FileStorage:
             return False
 
     def _save_csv(self, result: FetchResult) -> str:
+        """
+        Save detailed data to CSV file.
+        Args:
+            result: FetchResult containing data to save.
+        Returns:
+            Path to the saved CSV file.
+        """
         csv_path = Path(self.output_dir) / f"{result.country_code}_{result.data_type}_list.csv"
         pd.DataFrame(result.data_rows).to_csv(csv_path, index=False)
         return str(csv_path)
@@ -87,6 +94,13 @@ class FileStorage:
         return allocations
 
     def _save_ranges_file(self, data_type: str, allocations: list[str]) -> str:
+        """
+        Save allocations to ranges file.
+        Args:
+            result: FetchResult containing allocations to save.
+        Returns:
+            Path to the ranges file.
+        """
         range_file = Path(self.output_dir) / f"{data_type}_ranges.txt"
         with range_file.open("a", encoding="utf-8") as f:
             for alloc in allocations:
@@ -94,6 +108,11 @@ class FileStorage:
         return str(range_file)
 
     def clear_ranges_file(self, data_type: str) -> None:
+        """
+        Clear a ranges file before starting fresh.
+        Args:
+            data_type: Type of data ('asn', 'ipv4', 'ipv6').
+        """
         range_file = Path(self.output_dir) / f"{data_type}_ranges.txt"
         if range_file.exists():
             range_file.unlink()
