@@ -108,7 +108,7 @@ make help
 ### Run with Docker
 
 ```bash
-docker run --rm -v /results:/app/output_data hatamiarash7/asn-by-country:latest <country_code_1> <country_code_2> ... [options]
+docker run --rm -v ./results:/app/output_data hatamiarash7/asn-by-country:latest <country_code_1> <country_code_2> ... [options]
 ```
 
 Using makefile:
