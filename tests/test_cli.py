@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from src.cli import cli, create_parser, main, run_scraper, validate_country_codes
-from src.models import FetchResult
+from src.models import FetchResult, ScraperStats
 
 
 class TestCreateParser:
@@ -333,7 +333,6 @@ class TestMain:
     @patch("src.cli.run_scraper")
     def test_main_success(self, mock_run_scraper: MagicMock) -> None:
         """Test successful main execution."""
-        from src.models import ScraperStats
 
         mock_stats = ScraperStats()
         mock_stats.record_success("IR")
@@ -347,7 +346,6 @@ class TestMain:
     @patch("src.cli.run_scraper")
     def test_main_with_failures_returns_1(self, mock_run_scraper: MagicMock) -> None:
         """Test main returns 1 when there are failures."""
-        from src.models import ScraperStats
 
         mock_stats = ScraperStats()
         mock_stats.record_failure("XX")
@@ -366,7 +364,6 @@ class TestMain:
     @patch("src.cli.run_scraper")
     def test_main_all_data_types(self, mock_run_scraper: MagicMock) -> None:
         """Test main with 'all' data type."""
-        from src.models import ScraperStats
 
         mock_stats = ScraperStats()
         mock_run_scraper.return_value = mock_stats
@@ -379,7 +376,6 @@ class TestMain:
     @patch("src.cli.run_scraper")
     def test_main_custom_max_workers(self, mock_run_scraper: MagicMock) -> None:
         """Test main with custom max workers."""
-        from src.models import ScraperStats
 
         mock_stats = ScraperStats()
         mock_run_scraper.return_value = mock_stats

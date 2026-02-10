@@ -2,7 +2,7 @@
 
 from unittest.mock import Mock, patch
 
-from requests.exceptions import ConnectionError, Timeout
+from requests.exceptions import ConnectionError, HTTPError, Timeout
 
 from src.scraper import DataFetcher
 
@@ -377,7 +377,6 @@ class TestEdgeCases:
     @patch("src.scraper.requests.get")
     def test_fetch_http_error(self, mock_get: Mock, mock_response: Mock) -> None:
         """Test fetch handles HTTP errors."""
-        from requests.exceptions import HTTPError
 
         mock_get.side_effect = HTTPError("404 Not Found")
 
