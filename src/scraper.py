@@ -1,11 +1,16 @@
 """Web scraping functionality for ASN data."""
 
+import logging
+
 import requests
 from bs4 import BeautifulSoup, Tag
 from requests.exceptions import RequestException
 
 from src.config import BASE_URLS, DEFAULT_TIMEOUT, REQUEST_HEADERS
 from src.models import FetchResult
+from src.network import ip_range_to_cidrs
+
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class DataFetcher:
@@ -95,40 +100,70 @@ class DataFetcher:
         if not table or not isinstance(table, Tag):
             return None, None
 
-        headers = [header.text.strip() for header in table.find_all("th")]
+        headers: list[str] = [header.text.strip() for header in table.find_all("th")]
         rows = table.find_all("tr")[2:]  # Skip header rows
 
-        data_rows: list[dict] = []
+        data_rows: list[dict[str, str]] = []
         allocations: list[str] = []
 
         for row in rows:
-            columns = [td.text.strip() for td in row.find_all("td")]
+            columns: list[str] = [td.text.strip() for td in row.find_all("td")]
             if not columns:
                 continue
 
-            row_data = dict(zip(headers[1:], columns))
+            row_data: dict[str, str] = dict(zip(headers[1:], columns))
             data_rows.append(row_data)
 
-            allocation: str | None = self._extract_allocation(columns, data_type)
-            if allocation:
-                allocations.append(allocation)
+            extracted: list[str] | None = self._extract_allocation(columns, data_type)
+            if extracted:
+                allocations.extend(extracted)
 
         return data_rows, allocations
 
     @staticmethod
-    def _extract_allocation(columns: list[str], data_type: str) -> str | None:
+    def _extract_allocation(columns: list[str], data_type: str) -> list[str] | None:
         """
-        Extract allocation from a row based on data type.
+        Extract allocation(s) from a row based on data type.
+
+        The real website tables have these column layouts:
+        - ASN (7 cols): Zone, Country, Parameter, Range, Number, Date, Status
+        - IPv4 (9 cols): Zone, Country, Parameter, First, Last, Prefix, Number, Date, Status
+        - IPv6 (9 cols): Zone, Country, Parameter, First, Last, Prefix, Number, Date, Status
+
+        When the Prefix column contains "Aggreg" instead of a CIDR prefix,
+        the delegation covers a non-CIDR-aligned range. In this case, we
+        decompose the First-Last range into minimal covering CIDR subnets.
 
         Args:
-            columns: List of column values.
+            columns: List of column values from the table row.
             data_type: Type of data ('asn', 'ipv4', 'ipv6').
 
         Returns:
-            Allocation string if allocated, None otherwise.
+            List of allocation strings if allocated/assigned, None otherwise.
         """
         if data_type == "asn" and len(columns) > 6 and columns[6] == "Allocated":
-            return columns[3]  # ASN
-        elif data_type in ["ipv4", "ipv6"] and len(columns) > 7 and columns[7] == "Allocated":
-            return f"{columns[3]}{columns[4].strip()}"
+            return [columns[3]]
+
+        if data_type in ("ipv4", "ipv6") and len(columns) > 8:
+            status: str = columns[8].strip()
+            if status not in ("Allocated", "Assigned"):
+                return None
+
+            prefix: str = columns[5].strip()
+            first_ip: str = columns[3].strip()
+
+            if prefix.lower() == "aggreg":
+                last_ip: str = columns[4].strip()
+                try:
+                    return ip_range_to_cidrs(first_ip, last_ip)
+                except ValueError:
+                    logger.warning(
+                        "Failed to compute CIDRs for range %s - %s",
+                        first_ip,
+                        last_ip,
+                    )
+                    return None
+
+            return [f"{first_ip}{prefix}"]
+
         return None
