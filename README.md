@@ -57,11 +57,10 @@ python -m src.cli <country_code_1> <country_code_2> ... [options]
 
 - `-d, --data-type <type>`:
   Specify which type of data to fetch. The options are:
-
-  - `asn`: Retrieve only AS numbers (default).
-  - `ipv4`: Retrieve only IPv4 addresses.
-  - `ipv6`: Retrieve only IPv6 addresses.
-  - `all`: Retrieve AS numbers, IPv4 addresses, and IPv6 addresses.
+    - `asn`: Retrieve only AS numbers (default).
+    - `ipv4`: Retrieve only IPv4 addresses.
+    - `ipv6`: Retrieve only IPv6 addresses.
+    - `all`: Retrieve AS numbers, IPv4 addresses, and IPv6 addresses.
 
 - `-w, --max-workers <N>`: Maximum concurrent workers (default: 5)
 - `-q, --quiet`: Suppress progress output
@@ -109,7 +108,7 @@ make help
 ### Run with Docker
 
 ```bash
-docker run --rm -v /results:/app/output_data hatamiarash7/asn-by-country:latest <country_code_1> <country_code_2> ... [options]
+docker run --rm -v ./results:/app/output_data hatamiarash7/asn-by-country:latest <country_code_1> <country_code_2> ... [options]
 ```
 
 Using makefile:
@@ -129,14 +128,16 @@ make docker-build
 
 The output will be generated in the `output_data` directory:
 
-| File Name                 | Description                                                   |
-| ------------------------- | ------------------------------------------------------------- |
-| `{Country}_asn_list.csv`  | Contains a list of ASN delegations for specified country.     |
-| `{Country}_ipv4_list.csv` | Contains IPv4-specific ASN delegations for specified country. |
-| `{Country}_ipv6_list.csv` | Contains IPv6-specific ASN delegations for specified country. |
-| `asn_ranges.txt`          | Contains a list of all ASN ranges across countries.           |
-| `ipv4_ranges.txt`         | Contains a list of all IPv4 ranges.                           |
-| `ipv6_ranges.txt`         | Contains a list of all IPv6 ranges.                           |
+| File Name                 | Description                                                       |
+| ------------------------- | ----------------------------------------------------------------- |
+| `{Country}_asn_list.csv`  | Contains a list of ASN delegations for the specified country.     |
+| `{Country}_ipv4_list.csv` | Contains IPv4-specific ASN delegations for the specified country. |
+| `{Country}_ipv6_list.csv` | Contains IPv6-specific ASN delegations for the specified country. |
+| `{Country}_ipv4.rsc`      | Contains IPv4-specific MikroTik script for the specified country. |
+| `{Country}_ipv6.rsc`      | Contains IPv6-specific MikroTik script for the specified country. |
+| `asn_ranges.txt`          | Contains a list of all ASN ranges across countries.               |
+| `ipv4_ranges.txt`         | Contains a list of all IPv4 ranges.                               |
+| `ipv6_ranges.txt`         | Contains a list of all IPv6 ranges.                               |
 
 ## Development
 
@@ -147,6 +148,7 @@ ASN-By-Country/
 ├── src/                    # Source code
 │   ├── cli.py              # Command-line interface
 │   ├── config.py           # Configuration constants
+│   ├── mikrotik.py         # Mikrotik rsc generator
 │   ├── models.py           # Data models
 │   ├── scraper.py          # Web scraping logic
 │   └── storage.py          # File storage operations

@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from rich.console import Console
 
 from src.config import MAX_WORKERS, VALID_DATA_TYPES
+from src.mikrotik import MikroTikExporter
 from src.models import FetchResult, ScraperStats
 from src.scraper import DataFetcher
 from src.storage import FileStorage
@@ -33,12 +34,14 @@ Examples:
   %(prog)s JP --data-type ipv4   Fetch only IPv4 data for Japan
         """,
     )
+
     parser.add_argument(
         "countries",
         nargs="+",
         metavar="COUNTRY",
         help="Two-letter country codes (e.g., 'FR', 'US', 'IR')",
     )
+
     parser.add_argument(
         "-d",
         "--data-type",
@@ -54,18 +57,21 @@ Examples:
         metavar="N",
         help=f"Maximum concurrent workers (default: {MAX_WORKERS})",
     )
+
     parser.add_argument(
         "-q",
         "--quiet",
         action="store_true",
         help="Suppress progress output",
     )
+
     parser.add_argument(
         "-v",
         "--version",
         action="version",
         version="%(prog)s 1.0.0",
     )
+
     return parser
 
 
@@ -112,16 +118,21 @@ def run_scraper(
     fetcher = DataFetcher()
     storage = FileStorage()
     stats = ScraperStats()
+    rsc_exporter = (
+        (MikroTikExporter(storage.output_dir))
+        if "ipv4" in data_types or "ipv6" in data_types
+        else None
+    )
 
     # Clear existing ranges files for clean output
     for data_type in data_types:
         storage.clear_ranges_file(data_type)
 
     if not quiet:
-        console.log(f"[blue]Starting data fetch for {len(countries)} countries...[/blue]")
+        console.log(f"[blue]Starting data fetch for {len(countries)} countries ")
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures: dict = {
+        futures = {
             executor.submit(fetcher.fetch, country, data_type): (country, data_type)
             for country in countries
             for data_type in data_types
@@ -132,10 +143,17 @@ def run_scraper(
 
             if result.is_success:
                 storage.save(result)
+
+                # RSC export only applies to IP allocations
+                if rsc_exporter and result.data_type != "asn":
+                    rsc_exporter.export(result)
+
                 stats.record_success(result.country_code)
+
                 if not quiet:
                     console.log(
-                        f"[green]✓ {result.data_type.upper()} data saved for {result.country_code}[/green]"
+                        f"[green]✓ {result.data_type.upper()} data saved for "
+                        f"{result.country_code}[/green]"
                     )
             else:
                 stats.record_failure(result.country_code)
@@ -155,19 +173,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     Returns:
         Exit code (0 for success, non-zero for errors).
     """
-    parser: argparse.ArgumentParser = create_parser()
-    args: argparse.Namespace = parser.parse_args(argv)
+    parser = create_parser()
+    args = parser.parse_args(argv)
 
     try:
-        countries: list[str] = validate_country_codes(args.countries)
+        countries = validate_country_codes(args.countries)
     except ValueError as e:
         console.log(f"[red]Error: {e}[/red]")
         return 1
 
-    data_types: list[str] = list(VALID_DATA_TYPES) if args.data_type == "all" else [args.data_type]
+    data_types = list(VALID_DATA_TYPES) if args.data_type == "all" else [args.data_type]
 
     try:
-        stats: ScraperStats = run_scraper(
+        stats = run_scraper(
             countries=countries,
             data_types=data_types,
             max_workers=args.max_workers,
@@ -176,8 +194,9 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         if not args.quiet:
             console.log(
-                f"[blue]Completed: {stats.successful_requests}/{stats.total_requests} "
-                f"requests successful ({stats.success_rate:.1f}%)[/blue]"
+                f"[blue]Completed: {stats.successful_requests}/"
+                f"{stats.total_requests} requests successful "
+                f"({stats.success_rate:.1f}%)[/blue]"
             )
 
         return 0 if stats.failed_requests == 0 else 1
