@@ -24,7 +24,7 @@ class MikroTikExporter:
         # If allocations empty, try loading from CSV
         allocations: list[str] | None = result.allocations
         if not allocations and result.data_rows:
-            allocations: list[str] = self._allocations_from_csv(result)
+            allocations = self._allocations_from_csv(result)
 
         if not allocations:
             return
@@ -69,7 +69,7 @@ class MikroTikExporter:
                     else:
                         allocations.append(f"{first.strip()}{prefix.strip()}")
             elif result.data_type == "ipv6":
-                prefix: str | None = row.get("Prefix")
+                prefix = row.get("Prefix")
                 length: str | None = row.get("Length")
                 if prefix and length:
                     allocations.append(f"{prefix.strip()}/{length}")

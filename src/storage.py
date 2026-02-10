@@ -57,7 +57,7 @@ class FileStorage:
 
             # If allocations are empty, try generating from CSV
             if not allocations and result.data_type in ["ipv4", "ipv6"]:
-                allocations: list[str] = self._allocations_from_csv(csv_path, result.data_type)
+                allocations = self._allocations_from_csv(csv_path, result.data_type)
 
             if allocations:
                 self._save_ranges_file(result.data_type, allocations)
