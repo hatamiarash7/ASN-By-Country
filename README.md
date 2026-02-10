@@ -10,12 +10,12 @@ A Python tool to scrape ASN (Autonomous System Number), IPv4, and IPv6 allocatio
 
 ## Features
 
-- 🌍 Fetch network data for any country using ISO 3166-1 alpha-2 codes
-- 📊 Support for ASN, IPv4, and IPv6 data types
-- ⚡ Multi-threaded fetching for improved performance
-- 📁 Clean data output in CSV and text formats
-- 🎨 Rich console output with progress tracking
-- 🐳 Docker support for containerized execution
+- Fetch network data for any country using ISO 3166-1 alpha-2 codes
+- Support for ASN, IPv4, and IPv6 data types
+- Multi-threaded fetching for improved performance
+- Clean data output in CSV and text formats
+- Rich console output with progress tracking
+- Docker support for containerized execution
 
 Data source: [RIR Delegations & RIPE NCC Allocations](https://www-public.imtbs-tsp.eu/~maigron/RIR_Stats/index.html)
 
@@ -57,10 +57,10 @@ python -m src.cli <country_code_1> <country_code_2> ... [options]
 
 - `-d, --data-type <type>`:
   Specify which type of data to fetch. The options are:
-    - `asn`: Retrieve only AS numbers (default).
-    - `ipv4`: Retrieve only IPv4 addresses.
-    - `ipv6`: Retrieve only IPv6 addresses.
-    - `all`: Retrieve AS numbers, IPv4 addresses, and IPv6 addresses.
+  - `asn`: Retrieve only AS numbers (default).
+  - `ipv4`: Retrieve only IPv4 addresses.
+  - `ipv6`: Retrieve only IPv6 addresses.
+  - `all`: Retrieve AS numbers, IPv4 addresses, and IPv6 addresses.
 
 - `-w, --max-workers <N>`: Maximum concurrent workers (default: 5)
 - `-q, --quiet`: Suppress progress output
@@ -143,7 +143,7 @@ The output will be generated in the `output_data` directory:
 
 ### Project Structure
 
-```
+```text
 ASN-By-Country/
 ├── src/                    # Source code
 │   ├── cli.py              # Command-line interface
