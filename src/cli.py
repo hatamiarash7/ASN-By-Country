@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from argparse import ArgumentParser, Namespace
 from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -90,7 +91,7 @@ def validate_country_codes(countries: Sequence[str]) -> list[str]:
     """
     validated: list[str] = []
     for code in countries:
-        normalized = code.strip().upper()
+        normalized: str = code.strip().upper()
         if len(normalized) != 2 or not normalized.isalpha():
             raise ValueError(f"Invalid country code: '{normalized}'. Must be 2 letters.")
         validated.append(normalized)
@@ -118,7 +119,7 @@ def run_scraper(
     fetcher = DataFetcher()
     storage = FileStorage()
     stats = ScraperStats()
-    rsc_exporter = (
+    rsc_exporter: MikroTikExporter | None = (
         (MikroTikExporter(storage.output_dir))
         if "ipv4" in data_types or "ipv6" in data_types
         else None
@@ -132,7 +133,7 @@ def run_scraper(
         console.log(f"[blue]Starting data fetch for {len(countries)} countries ")
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {
+        futures: dict = {
             executor.submit(fetcher.fetch, country, data_type): (country, data_type)
             for country in countries
             for data_type in data_types
@@ -173,19 +174,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     Returns:
         Exit code (0 for success, non-zero for errors).
     """
-    parser = create_parser()
-    args = parser.parse_args(argv)
+    parser: ArgumentParser = create_parser()
+    args: Namespace = parser.parse_args(argv)
 
     try:
-        countries = validate_country_codes(args.countries)
+        countries: list[str] = validate_country_codes(args.countries)
     except ValueError as e:
         console.log(f"[red]Error: {e}[/red]")
         return 1
 
-    data_types = list(VALID_DATA_TYPES) if args.data_type == "all" else [args.data_type]
+    data_types: list[str] = list(VALID_DATA_TYPES) if args.data_type == "all" else [args.data_type]
 
     try:
-        stats = run_scraper(
+        stats: ScraperStats = run_scraper(
             countries=countries,
             data_types=data_types,
             max_workers=args.max_workers,

@@ -147,6 +147,7 @@ docker-shell: docker-build ## Open shell in Docker container
 .PHONY: clean
 clean: ## Remove output files
 	rm -rf $(OUTPUT_DIR)
+	rm -rf coverage_html/ .coverage coverage.xml junit.xml
 
 .PHONY: clean-build
 clean-build: ## Remove build artifacts

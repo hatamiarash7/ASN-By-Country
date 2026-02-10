@@ -1,13 +1,18 @@
 """Data storage and file operations."""
 
+import logging
 import os
 from pathlib import Path
 from typing import Protocol
 
 import pandas as pd
+from pandas import DataFrame
 
 from src.config import OUTPUT_DIR
 from src.models import FetchResult
+from src.network import ip_range_to_cidrs
+
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class StorageBackend(Protocol):
@@ -47,12 +52,12 @@ class FileStorage:
             return False
 
         try:
-            csv_path = self._save_csv(result)
-            allocations = result.allocations
+            csv_path: str = self._save_csv(result)
+            allocations: list[str] | None = result.allocations
 
             # If allocations are empty, try generating from CSV
             if not allocations and result.data_type in ["ipv4", "ipv6"]:
-                allocations = self._allocations_from_csv(csv_path, result.data_type)
+                allocations: list[str] = self._allocations_from_csv(csv_path, result.data_type)
 
             if allocations:
                 self._save_ranges_file(result.data_type, allocations)
@@ -68,29 +73,43 @@ class FileStorage:
         Returns:
             Path to the saved CSV file.
         """
-        csv_path = Path(self.output_dir) / f"{result.country_code}_{result.data_type}_list.csv"
+        csv_path: Path = (
+            Path(self.output_dir) / f"{result.country_code}_{result.data_type}_list.csv"
+        )
         pd.DataFrame(result.data_rows).to_csv(csv_path, index=False)
         return str(csv_path)
 
     def _allocations_from_csv(self, csv_path: str, data_type: str) -> list[str]:
         """Generate allocations list from CSV if scraper didn't produce them."""
-        df = pd.read_csv(csv_path)
-        allocations = []
+        df: DataFrame = pd.read_csv(csv_path)
+        allocations: list[str] = []
 
         if data_type == "ipv4":
             for _, row in df.iterrows():
-                first = str(row.get("First") or "").strip()
-                prefix = str(row.get("Prefix") or "").strip()
-                if prefix:
-                    allocations.append(f"{first}{prefix}")
+                first: str = str(row.get("First") or "").strip()
+                prefix: str = str(row.get("Prefix") or "").strip()
+                if first and prefix:
+                    if prefix.lower() == "aggreg":
+                        last: str = str(row.get("Last") or "").strip()
+                        if last:
+                            try:
+                                allocations.extend(ip_range_to_cidrs(first, last))
+                            except ValueError:
+                                logger.warning(
+                                    "Failed to compute CIDRs for range %s - %s",
+                                    first,
+                                    last,
+                                )
+                    else:
+                        allocations.append(f"{first}{prefix}")
         elif data_type == "ipv6":
             for _, row in df.iterrows():
-                prefix = str(row.get("Prefix") or "").strip()
-                length = str(row.get("Length") or "").strip()
-                if prefix and length:
-                    allocations.append(f"{prefix}/{length}")
-                elif prefix:
-                    allocations.append(prefix)
+                ipv6_prefix: str = str(row.get("Prefix") or "").strip()
+                length: str = str(row.get("Length") or "").strip()
+                if ipv6_prefix and length:
+                    allocations.append(f"{ipv6_prefix}/{length}")
+                elif ipv6_prefix:
+                    allocations.append(ipv6_prefix)
         return allocations
 
     def _save_ranges_file(self, data_type: str, allocations: list[str]) -> str:
@@ -101,7 +120,7 @@ class FileStorage:
         Returns:
             Path to the ranges file.
         """
-        range_file = Path(self.output_dir) / f"{data_type}_ranges.txt"
+        range_file: Path = Path(self.output_dir) / f"{data_type}_ranges.txt"
         with range_file.open("a", encoding="utf-8") as f:
             for alloc in allocations:
                 f.write(f"{alloc}\n")
@@ -113,6 +132,6 @@ class FileStorage:
         Args:
             data_type: Type of data ('asn', 'ipv4', 'ipv6').
         """
-        range_file = Path(self.output_dir) / f"{data_type}_ranges.txt"
+        range_file: Path = Path(self.output_dir) / f"{data_type}_ranges.txt"
         if range_file.exists():
             range_file.unlink()
