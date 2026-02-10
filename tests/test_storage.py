@@ -1,6 +1,7 @@
 """Unit tests for the storage module."""
 
 import os
+from unittest.mock import patch
 
 from src.models import FetchResult
 from src.storage import FileStorage
@@ -179,3 +180,199 @@ class TestFileStorage:
         assert os.path.exists(os.path.join(temp_output_dir, "IR_ipv4_list.csv"))
         assert os.path.exists(os.path.join(temp_output_dir, "asn_ranges.txt"))
         assert os.path.exists(os.path.join(temp_output_dir, "ipv4_ranges.txt"))
+
+    def test_save_os_error_returns_false(self, temp_output_dir: str) -> None:
+        """Test that save returns False on OSError."""
+        storage = FileStorage(output_dir=temp_output_dir)
+        result = FetchResult(
+            country_code="IR",
+            data_type="asn",
+            data_rows=[{"ASN": "AS12880"}],
+            allocations=["AS12880"],
+        )
+
+        with patch.object(storage, "_save_csv", side_effect=OSError("Disk full")):
+            success = storage.save(result)
+
+        assert success is False
+
+
+class TestAllocationsFromCsv:
+    """Tests for _allocations_from_csv method."""
+
+    def test_ipv4_normal_prefix(self, temp_output_dir: str) -> None:
+        """Test generating allocations from CSV with normal IPv4 prefix."""
+        storage = FileStorage(output_dir=temp_output_dir)
+        result = FetchResult(
+            country_code="IR",
+            data_type="ipv4",
+            data_rows=[
+                {"First": "5.22.0.0", "Last": "5.22.31.255", "Prefix": "/19"},
+                {"First": "10.0.0.0", "Last": "10.0.0.255", "Prefix": "/24"},
+            ],
+            allocations=None,  # Force allocation generation from CSV
+        )
+
+        storage.save(result)
+
+        ranges_path = os.path.join(temp_output_dir, "ipv4_ranges.txt")
+        with open(ranges_path) as f:
+            lines = [line.strip() for line in f.readlines()]
+
+        assert "5.22.0.0/19" in lines
+        assert "10.0.0.0/24" in lines
+
+    def test_ipv4_aggreg_prefix(self, temp_output_dir: str) -> None:
+        """Test generating allocations from CSV with Aggreg prefix."""
+        storage = FileStorage(output_dir=temp_output_dir)
+        result = FetchResult(
+            country_code="IR",
+            data_type="ipv4",
+            data_rows=[
+                {"First": "91.237.254.0", "Last": "91.238.0.255", "Prefix": "Aggreg"},
+            ],
+            allocations=None,
+        )
+
+        storage.save(result)
+
+        ranges_path = os.path.join(temp_output_dir, "ipv4_ranges.txt")
+        with open(ranges_path) as f:
+            lines = [line.strip() for line in f.readlines()]
+
+        # 91.237.254.0 - 91.238.0.255 = /23 + /24
+        assert "91.237.254.0/23" in lines
+        assert "91.238.0.0/24" in lines
+
+    def test_ipv4_aggreg_missing_last(self, temp_output_dir: str) -> None:
+        """Test Aggreg prefix with missing Last field."""
+        storage = FileStorage(output_dir=temp_output_dir)
+        result = FetchResult(
+            country_code="IR",
+            data_type="ipv4",
+            data_rows=[
+                {"First": "5.22.0.0", "Prefix": "Aggreg"},  # No Last field
+            ],
+            allocations=None,
+        )
+
+        storage.save(result)
+
+        # No ranges file should be created since no allocations could be generated
+        ranges_path = os.path.join(temp_output_dir, "ipv4_ranges.txt")
+        assert not os.path.exists(ranges_path)
+
+    def test_ipv4_aggreg_invalid_range(self, temp_output_dir: str) -> None:
+        """Test Aggreg prefix with invalid IP range logs warning."""
+        storage = FileStorage(output_dir=temp_output_dir)
+        result = FetchResult(
+            country_code="IR",
+            data_type="ipv4",
+            data_rows=[
+                {"First": "invalid", "Last": "also_invalid", "Prefix": "Aggreg"},
+            ],
+            allocations=None,
+        )
+
+        # Should not raise, just logs warning and skips
+        storage.save(result)
+
+        # No ranges file should be created
+        ranges_path = os.path.join(temp_output_dir, "ipv4_ranges.txt")
+        assert not os.path.exists(ranges_path)
+
+    def test_ipv4_missing_first(self, temp_output_dir: str) -> None:
+        """Test IPv4 row with missing First field."""
+        storage = FileStorage(output_dir=temp_output_dir)
+        result = FetchResult(
+            country_code="IR",
+            data_type="ipv4",
+            data_rows=[
+                {"Last": "5.22.31.255", "Prefix": "/19"},  # No First
+            ],
+            allocations=None,
+        )
+
+        storage.save(result)
+
+        # No ranges file created
+        ranges_path = os.path.join(temp_output_dir, "ipv4_ranges.txt")
+        assert not os.path.exists(ranges_path)
+
+    def test_ipv4_missing_prefix(self, temp_output_dir: str) -> None:
+        """Test IPv4 row with missing Prefix field."""
+        storage = FileStorage(output_dir=temp_output_dir)
+        result = FetchResult(
+            country_code="IR",
+            data_type="ipv4",
+            data_rows=[
+                {"First": "5.22.0.0", "Last": "5.22.31.255"},  # No Prefix
+            ],
+            allocations=None,
+        )
+
+        storage.save(result)
+
+        # No ranges should be generated
+        ranges_path = os.path.join(temp_output_dir, "ipv4_ranges.txt")
+        assert not os.path.exists(ranges_path)
+
+    def test_ipv6_with_length(self, temp_output_dir: str) -> None:
+        """Test generating allocations from CSV for IPv6 with Length."""
+        storage = FileStorage(output_dir=temp_output_dir)
+        result = FetchResult(
+            country_code="IR",
+            data_type="ipv6",
+            data_rows=[
+                {"Prefix": "2001:db8::", "Length": "32"},
+                {"Prefix": "2001:db9::", "Length": "48"},
+            ],
+            allocations=None,
+        )
+
+        storage.save(result)
+
+        ranges_path = os.path.join(temp_output_dir, "ipv6_ranges.txt")
+        with open(ranges_path) as f:
+            lines = [line.strip() for line in f.readlines()]
+
+        assert "2001:db8::/32" in lines
+        assert "2001:db9::/48" in lines
+
+    def test_ipv6_without_length(self, temp_output_dir: str) -> None:
+        """Test generating allocations from CSV for IPv6 without Length."""
+        storage = FileStorage(output_dir=temp_output_dir)
+        result = FetchResult(
+            country_code="IR",
+            data_type="ipv6",
+            data_rows=[
+                {"Prefix": "2001:db8::"},  # No Length
+            ],
+            allocations=None,
+        )
+
+        storage.save(result)
+
+        ranges_path = os.path.join(temp_output_dir, "ipv6_ranges.txt")
+        with open(ranges_path) as f:
+            lines = [line.strip() for line in f.readlines()]
+
+        assert "2001:db8::" in lines
+
+    def test_ipv6_missing_prefix(self, temp_output_dir: str) -> None:
+        """Test IPv6 row with missing Prefix field."""
+        storage = FileStorage(output_dir=temp_output_dir)
+        result = FetchResult(
+            country_code="IR",
+            data_type="ipv6",
+            data_rows=[
+                {"Length": "32"},  # No Prefix
+            ],
+            allocations=None,
+        )
+
+        storage.save(result)
+
+        # No ranges should be generated
+        ranges_path = os.path.join(temp_output_dir, "ipv6_ranges.txt")
+        assert not os.path.exists(ranges_path)
