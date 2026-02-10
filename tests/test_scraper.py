@@ -119,30 +119,128 @@ class TestDataFetcher:
 
     def test_extract_allocation_asn(self) -> None:
         """Test allocation extraction for ASN data."""
-        columns = ["1", "ripencc", "IR", "AS12880", "DCI", "2003-01-01", "Allocated"]
+        columns = ["RIPE NCC", "IR", "ASN", "AS12880", "1", "2003-01-01", "Allocated"]
         result = DataFetcher._extract_allocation(columns, "asn")
-        assert result == "AS12880"
+        assert result == ["AS12880"]
 
     def test_extract_allocation_asn_not_allocated(self) -> None:
         """Test allocation extraction for non-allocated ASN."""
-        columns = ["1", "ripencc", "IR", "AS99999", "Test", "2003-01-01", "Reserved"]
+        columns = ["RIPE NCC", "IR", "ASN", "AS99999", "1", "2003-01-01", "Reserved"]
         result = DataFetcher._extract_allocation(columns, "asn")
         assert result is None
 
     def test_extract_allocation_ipv4(self) -> None:
         """Test allocation extraction for IPv4 data."""
-        columns = ["1", "ripencc", "IR", "5.22.0.0", "/19", "8192", "2012-01-01", "Allocated"]
+        columns = [
+            "RIPE NCC",
+            "IR",
+            "IPv4",
+            "5.22.0.0",
+            "5.22.7.255",
+            "/19",
+            "8192",
+            "2012-01-01",
+            "Allocated",
+        ]
         result = DataFetcher._extract_allocation(columns, "ipv4")
-        assert result == "5.22.0.0/19"
+        assert result == ["5.22.0.0/19"]
+
+    def test_extract_allocation_ipv4_assigned(self) -> None:
+        """Test allocation extraction for Assigned IPv4 data."""
+        columns = [
+            "RIPE NCC",
+            "IR",
+            "IPv4",
+            "88.135.32.0",
+            "88.135.32.255",
+            "/24",
+            "256",
+            "2009-11-16",
+            "Assigned",
+        ]
+        result = DataFetcher._extract_allocation(columns, "ipv4")
+        assert result == ["88.135.32.0/24"]
+
+    def test_extract_allocation_ipv4_aggreg(self) -> None:
+        """Test allocation extraction for Aggreg prefix (91.237.254.0 - 91.238.0.255 = /23 + /24)."""
+        columns = [
+            "RIPE NCC",
+            "IR",
+            "IPv4",
+            "91.237.254.0",
+            "91.238.0.255",
+            "Aggreg",
+            "768",
+            "2012-04-03",
+            "Assigned",
+        ]
+        result = DataFetcher._extract_allocation(columns, "ipv4")
+        assert result is not None
+        assert "91.237.254.0/23" in result
+        assert "91.238.0.0/24" in result
+        assert len(result) == 2
+
+    def test_extract_allocation_ipv4_aggreg_another(self) -> None:
+        """Test allocation extraction for another Aggreg prefix (194.33.125.0 - 194.33.127.255)."""
+        columns = [
+            "RIPE NCC",
+            "IR",
+            "IPv4",
+            "194.33.125.0",
+            "194.33.127.255",
+            "Aggreg",
+            "768",
+            "2012-06-04",
+            "Assigned",
+        ]
+        result = DataFetcher._extract_allocation(columns, "ipv4")
+        assert result is not None
+        assert "194.33.125.0/24" in result
+        assert "194.33.126.0/23" in result
+        assert len(result) == 2
 
     def test_extract_allocation_ipv6(self) -> None:
         """Test allocation extraction for IPv6 data."""
-        columns = ["1", "ripencc", "IR", "2001:db8::", "/32", "1", "2012-01-01", "Allocated"]
+        columns = [
+            "RIPE NCC",
+            "IR",
+            "IPv6",
+            "2001:db8::",
+            "2001:db8:ffff:ffff:ffff:ffff:ffff:ffff",
+            "/32",
+            "1",
+            "2012-01-01",
+            "Allocated",
+        ]
         result = DataFetcher._extract_allocation(columns, "ipv6")
-        assert result == "2001:db8::/32"
+        assert result == ["2001:db8::/32"]
 
     def test_extract_allocation_short_columns(self) -> None:
         """Test allocation extraction with insufficient columns."""
-        columns = ["1", "ripencc"]
+        columns = ["RIPE NCC", "IR"]
         result = DataFetcher._extract_allocation(columns, "asn")
         assert result is None
+
+    @patch("src.scraper.requests.get")
+    def test_fetch_ipv4_aggreg(
+        self, mock_get: Mock, sample_html_ipv4_aggreg: str, mock_response: Mock
+    ) -> None:
+        """Test successful IPv4 fetch with Aggreg prefixes."""
+        mock_response.text = sample_html_ipv4_aggreg
+        mock_get.return_value = mock_response
+
+        fetcher = DataFetcher()
+        result = fetcher.fetch("IR", "ipv4")
+
+        assert result.is_success is True
+        assert result.data_rows is not None
+        assert len(result.data_rows) == 3
+        assert result.allocations is not None
+        # Normal /24 row
+        assert "88.135.32.0/24" in result.allocations
+        # Aggreg row: 91.237.254.0 - 91.238.0.255 → /23 + /24
+        assert "91.237.254.0/23" in result.allocations
+        assert "91.238.0.0/24" in result.allocations
+        # Aggreg row: 194.33.125.0 - 194.33.127.255 → /24 + /23
+        assert "194.33.125.0/24" in result.allocations
+        assert "194.33.126.0/23" in result.allocations
