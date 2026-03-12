@@ -56,8 +56,7 @@ class MikroTikExporter:
                 prefix: str | None = row.get("Prefix")
                 if first and prefix:
                     if prefix.strip().lower() == "aggreg":
-                        last: str | None = row.get("Last")
-                        if last:
+                        if last := row.get("Last"):
                             try:
                                 allocations.extend(ip_range_to_cidrs(first.strip(), last.strip()))
                             except ValueError:

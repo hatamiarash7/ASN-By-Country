@@ -57,7 +57,7 @@ class FileStorage:
 
             # If allocations are empty, try generating from CSV
             if not allocations and result.data_type in ["ipv4", "ipv6"]:
-                allocations = self._allocations_from_csv(csv_path, result.data_type)
+                allocations: list[str] = self._allocations_from_csv(csv_path, result.data_type)
 
             if allocations:
                 self._save_ranges_file(result.data_type, allocations)
@@ -90,8 +90,7 @@ class FileStorage:
                 prefix: str = str(row.get("Prefix") or "").strip()
                 if first and prefix:
                     if prefix.lower() == "aggreg":
-                        last: str = str(row.get("Last") or "").strip()
-                        if last:
+                        if last := str(row.get("Last") or "").strip():
                             try:
                                 allocations.extend(ip_range_to_cidrs(first, last))
                             except ValueError:

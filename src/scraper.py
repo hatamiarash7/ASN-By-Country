@@ -95,13 +95,13 @@ class DataFetcher:
             Tuple of (data_rows, allocations) or (None, None) if parsing fails.
         """
         soup = BeautifulSoup(html_content, "lxml")
-        table = soup.find("table", attrs={"class": f"delegs {data_type} ripencc"})
+        table: Tag | None = soup.find("table", attrs={"class": f"delegs {data_type} ripencc"})
 
         if not table or not isinstance(table, Tag):
             return None, None
 
         headers: list[str] = [header.text.strip() for header in table.find_all("th")]
-        rows = table.find_all("tr")[2:]  # Skip header rows
+        rows: list[Tag] = table.find_all("tr")[2:]  # Skip header rows
 
         data_rows: list[dict[str, str]] = []
         allocations: list[str] = []
@@ -114,8 +114,7 @@ class DataFetcher:
             row_data: dict[str, str] = dict(zip(headers[1:], columns))
             data_rows.append(row_data)
 
-            extracted: list[str] | None = self._extract_allocation(columns, data_type)
-            if extracted:
+            if extracted := self._extract_allocation(columns, data_type):
                 allocations.extend(extracted)
 
         return data_rows, allocations
