@@ -104,12 +104,9 @@ class FileStorage:
                         allocations.append(f"{first}{prefix}")
         elif data_type == "ipv6":
             for _, row in df.iterrows():
-                ipv6_prefix: str = str(row.get("Prefix") or "").strip()
-                length: str = str(row.get("Length") or "").strip()
-                if ipv6_prefix and length:
-                    allocations.append(f"{ipv6_prefix}/{length}")
-                elif ipv6_prefix:
-                    allocations.append(ipv6_prefix)
+                ipv6_prefix: str = str(row.get("First") or "").strip()
+                length: str = str(row.get("Prefix") or "").strip()
+                allocations.append(f"{ipv6_prefix}{length}")
         return allocations
 
     def _save_prefixes_file(self, data_type: str, allocations: list[str]) -> str:
@@ -125,8 +122,8 @@ class FileStorage:
         with prefix_file.open("a", encoding="utf-8") as f:
             for alloc in allocations:
                 f.write(alloc + "\n")
-                if data_type == "asn":
-                    continue  # ASNs don't expand to IPs
+                if data_type in ("asn", "ipv6"):
+                    continue  # ASNs don't expand to IPs and IPv6 expansion is skipped due to size
                 try:
                     network = ipaddress.ip_network(alloc, strict=False)
                     # Get all hosts in the network
