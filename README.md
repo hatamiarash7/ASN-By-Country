@@ -138,6 +138,7 @@ The output will be generated in the `output_data` directory:
 | `asn_prefixes.txt`        | Contains a list of all ASN prefixes across countries.             |
 | `ipv4_prefixes.txt`       | Contains a list of all IPv4 prefixes.                             |
 | `ipv6_prefixes.txt`       | Contains a list of all IPv6 prefixes.                             |
+| `ipv4_expanded.txt`       | Contains a list of all expanded IPv4 addresses.                   |
 
 ## Development
 

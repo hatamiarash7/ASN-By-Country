@@ -137,7 +137,7 @@ class FileStorage:
 
         # ASNs don't expand to IPs and IPv6 expansion is skipped due to size
         if data_type == "ipv4":
-            expanded_prefix_file: Path = Path(self.output_dir) / f"{data_type}_prefixes_expanded.txt"
+            expanded_prefix_file: Path = Path(self.output_dir) / f"{data_type}_expanded.txt"
             with expanded_prefix_file.open("a", encoding="utf-8") as f:
                 for ip in all_ips:
                     f.write(ip + "\n")
