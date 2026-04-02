@@ -262,8 +262,8 @@ class TestAllocationsFromCsv:
         prefixes_path = os.path.join(temp_output_dir, "ipv4_prefixes.txt")
         assert not os.path.exists(prefixes_path)
 
-    def test_ipv4_aggreg_invalid_range(self, temp_output_dir: str) -> None:
-        """Test Aggreg prefix with invalid IP range logs warning."""
+    def test_ipv4_aggreg_invalid_prefix(self, temp_output_dir: str) -> None:
+        """Test Aggreg prefix with invalid IP prefix logs warning."""
         storage = FileStorage(output_dir=temp_output_dir)
         result = FetchResult(
             country_code="IR",

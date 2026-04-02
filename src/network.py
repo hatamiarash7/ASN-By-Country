@@ -4,17 +4,17 @@ import ipaddress
 from ipaddress import IPv4Address, IPv6Address
 
 
-def ip_range_to_cidrs(first_ip: str, last_ip: str) -> list[str]:
+def ip_prefix_to_cidrs(first_ip: str, last_ip: str) -> list[str]:
     """
-    Convert an IP address range to a minimal list of CIDR subnets.
+    Convert an IP address prefix to a minimal list of CIDR subnets.
 
     Uses Python's ipaddress.summarize_address_range() to compute the
-    smallest set of CIDR networks that exactly covers the range from
+    smallest set of CIDR networks that exactly covers the prefix from
     first_ip to last_ip (inclusive).
 
     Args:
-        first_ip: Start IP address of the range (e.g., "91.237.254.0").
-        last_ip: End IP address of the range (e.g., "91.238.0.255").
+        first_ip: Start IP address of the prefix (e.g., "91.237.254.0").
+        last_ip: End IP address of the prefix (e.g., "91.238.0.255").
 
     Returns:
         List of CIDR notation strings (e.g., ["91.237.254.0/23", "91.238.0.0/24"]).

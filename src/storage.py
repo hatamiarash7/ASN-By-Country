@@ -11,7 +11,7 @@ from pandas import DataFrame
 
 from src.config import OUTPUT_DIR
 from src.models import FetchResult
-from src.network import ip_range_to_cidrs
+from src.network import ip_prefix_to_cidrs
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -93,10 +93,10 @@ class FileStorage:
                     if prefix.lower() == "aggreg":
                         if last := str(row.get("Last") or "").strip():
                             try:
-                                allocations.extend(ip_range_to_cidrs(first, last))
+                                allocations.extend(ip_prefix_to_cidrs(first, last))
                             except ValueError:
                                 logger.warning(
-                                    "Failed to compute CIDRs for range %s - %s",
+                                    "Failed to compute CIDRs for prefix %s - %s",
                                     first,
                                     last,
                                 )
@@ -121,8 +121,8 @@ class FileStorage:
             Path to the prefixes file.
         """
         all_ips: list[str] = []
-        range_file: Path = Path(self.output_dir) / f"{data_type}_prefixes.txt"
-        with range_file.open("a", encoding="utf-8") as f:
+        prefix_file: Path = Path(self.output_dir) / f"{data_type}_prefixes.txt"
+        with prefix_file.open("a", encoding="utf-8") as f:
             for alloc in allocations:
                 f.write(alloc + "\n")
                 try:
@@ -137,11 +137,11 @@ class FileStorage:
                         e,
                     )
 
-        expanded_range_file: Path = Path(self.output_dir) / f"{data_type}_prefixes_expanded.txt"
-        with expanded_range_file.open("a", encoding="utf-8") as f:
+        expanded_prefix_file: Path = Path(self.output_dir) / f"{data_type}_prefixes_expanded.txt"
+        with expanded_prefix_file.open("a", encoding="utf-8") as f:
             for ip in all_ips:
                 f.write(ip + "\n")
-        return str(range_file)
+        return str(prefix_file)
 
     def clear_prefixes_file(self, data_type: str) -> None:
         """
@@ -149,6 +149,6 @@ class FileStorage:
         Args:
             data_type: Type of data ('asn', 'ipv4', 'ipv6').
         """
-        range_file: Path = Path(self.output_dir) / f"{data_type}_prefixes.txt"
-        if range_file.exists():
-            range_file.unlink()
+        prefix_file: Path = Path(self.output_dir) / f"{data_type}_prefixes.txt"
+        if prefix_file.exists():
+            prefix_file.unlink()

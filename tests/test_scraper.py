@@ -261,8 +261,8 @@ class TestEdgeCases:
         assert result.error is not None
         assert "Unexpected error" in result.error
 
-    def test_extract_allocation_ipv4_aggreg_invalid_range(self) -> None:
-        """Test allocation extraction with invalid IP range for Aggreg."""
+    def test_extract_allocation_ipv4_aggreg_invalid_prefix(self) -> None:
+        """Test allocation extraction with invalid IP prefix for Aggreg."""
         columns = [
             "RIPE NCC",
             "IR",
@@ -277,8 +277,8 @@ class TestEdgeCases:
         result = DataFetcher._extract_allocation(columns, "ipv4")
         assert result is None
 
-    def test_extract_allocation_ipv4_aggreg_reversed_range(self) -> None:
-        """Test allocation extraction with reversed IP range (start > end)."""
+    def test_extract_allocation_ipv4_aggreg_reversed_prefix(self) -> None:
+        """Test allocation extraction with reversed IP prefix (start > end)."""
         columns = [
             "RIPE NCC",
             "IR",
@@ -291,7 +291,7 @@ class TestEdgeCases:
             "Assigned",
         ]
         result = DataFetcher._extract_allocation(columns, "ipv4")
-        # ip_range_to_cidrs should raise ValueError for reversed range
+        # ip_prefix_to_cidrs should raise ValueError for reversed prefix
         assert result is None
 
     @patch("src.scraper.requests.get")

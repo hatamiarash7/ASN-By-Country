@@ -8,7 +8,7 @@ from requests.exceptions import RequestException
 
 from src.config import BASE_URLS, DEFAULT_TIMEOUT, REQUEST_HEADERS
 from src.models import FetchResult
-from src.network import ip_range_to_cidrs
+from src.network import ip_prefix_to_cidrs
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -125,13 +125,13 @@ class DataFetcher:
         Extract allocation(s) from a row based on data type.
 
         The real website tables have these column layouts:
-        - ASN (7 cols): Zone, Country, Parameter, Range, Number, Date, Status
+        - ASN (7 cols): Zone, Country, Parameter, prefix, Number, Date, Status
         - IPv4 (9 cols): Zone, Country, Parameter, First, Last, Prefix, Number, Date, Status
         - IPv6 (9 cols): Zone, Country, Parameter, First, Last, Prefix, Number, Date, Status
 
         When the Prefix column contains "Aggreg" instead of a CIDR prefix,
-        the delegation covers a non-CIDR-aligned range. In this case, we
-        decompose the First-Last range into minimal covering CIDR subnets.
+        the delegation covers a non-CIDR-aligned prefix. In this case, we
+        decompose the First-Last prefix into minimal covering CIDR subnets.
 
         Args:
             columns: List of column values from the table row.
@@ -154,10 +154,10 @@ class DataFetcher:
             if prefix.lower() == "aggreg":
                 last_ip: str = columns[4].strip()
                 try:
-                    return ip_range_to_cidrs(first_ip, last_ip)
+                    return ip_prefix_to_cidrs(first_ip, last_ip)
                 except ValueError:
                     logger.warning(
-                        "Failed to compute CIDRs for range %s - %s",
+                        "Failed to compute CIDRs for prefix %s - %s",
                         first_ip,
                         last_ip,
                     )

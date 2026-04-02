@@ -26,7 +26,7 @@ class TestMikroTikExporter:
         result = FetchResult(
             country_code="IR",
             data_type="asn",
-            data_rows=[{"Range": "AS12880"}],
+            data_rows=[{"prefix": "AS12880"}],
             allocations=["AS12880"],
         )
 

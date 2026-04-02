@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 
 from src.models import FetchResult
-from src.network import ip_range_to_cidrs
+from src.network import ip_prefix_to_cidrs
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -58,10 +58,10 @@ class MikroTikExporter:
                     if prefix.strip().lower() == "aggreg":
                         if last := row.get("Last"):
                             try:
-                                allocations.extend(ip_range_to_cidrs(first.strip(), last.strip()))
+                                allocations.extend(ip_prefix_to_cidrs(first.strip(), last.strip()))
                             except ValueError:
                                 logger.warning(
-                                    "Failed to compute CIDRs for range %s - %s",
+                                    "Failed to compute CIDRs for prefix %s - %s",
                                     first,
                                     last,
                                 )
