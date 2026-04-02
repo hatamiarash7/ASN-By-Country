@@ -56,12 +56,10 @@ class FileStorage:
             csv_path: str = self._save_csv(result)
             allocations: list[str] | None = result.allocations
 
-            # If allocations are empty, try generating from CSV
             if not allocations and result.data_type in ["ipv4", "ipv6"]:
-                allocations: list[str] = self._allocations_from_csv(csv_path, result.data_type)
+                allocations = self._allocations_from_csv(csv_path, result.data_type)
 
-            if allocations:
-                self._save_prefixes_file(result.data_type, allocations)
+            self._save_prefixes_file(result.data_type, allocations)
             return True
         except OSError:
             return False
@@ -109,18 +107,19 @@ class FileStorage:
                 allocations.append(f"{ipv6_prefix}{length}")
         return allocations
 
-    def _save_prefixes_file(self, data_type: str, allocations: list[str]) -> str:
+    def _save_prefixes_file(self, data_type: str, allocations: list[str] | None) -> str:
         """
         Save allocations to prefixes file.
         Args:
-            result: FetchResult containing allocations to save.
+            data_type: Type of data ('asn', 'ipv4', 'ipv6').
+            allocations: List of allocations to save.
         Returns:
             Path to the prefixes file.
         """
         all_ips: list[str] = []
         prefix_file: Path = Path(self.output_dir) / f"{data_type}_prefixes.txt"
         with prefix_file.open("a", encoding="utf-8") as f:
-            for alloc in allocations:
+            for alloc in allocations or []:
                 f.write(alloc + "\n")
                 if data_type in ("asn", "ipv6"):
                     continue  # ASNs don't expand to IPs and IPv6 expansion is skipped due to size
