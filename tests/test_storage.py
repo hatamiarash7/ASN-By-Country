@@ -29,7 +29,7 @@ class TestFileStorage:
 
         assert success is True
         assert os.path.exists(os.path.join(temp_output_dir, "IR_asn_list.csv"))
-        assert os.path.exists(os.path.join(temp_output_dir, "asn_ranges.txt"))
+        assert os.path.exists(os.path.join(temp_output_dir, "asn_prefixes.txt"))
 
     def test_save_failed_result(self, temp_output_dir: str) -> None:
         """Test that failed results are not saved."""
@@ -58,8 +58,8 @@ class TestFileStorage:
 
         assert success is True
         assert os.path.exists(os.path.join(temp_output_dir, "IR_asn_list.csv"))
-        # Ranges file should not be created for empty allocations
-        assert not os.path.exists(os.path.join(temp_output_dir, "asn_ranges.txt"))
+        # prefixes file should not be created for empty allocations
+        assert not os.path.exists(os.path.join(temp_output_dir, "asn_prefixes.txt"))
 
     def test_csv_content(self, temp_output_dir: str) -> None:
         """Test that CSV content is correctly written."""
@@ -85,8 +85,8 @@ class TestFileStorage:
         assert "AS12880" in content
         assert "DCI" in content
 
-    def test_ranges_content(self, temp_output_dir: str) -> None:
-        """Test that ranges file content is correctly written."""
+    def test_prefixes_content(self, temp_output_dir: str) -> None:
+        """Test that prefixes file content is correctly written."""
         storage = FileStorage(output_dir=temp_output_dir)
         result = FetchResult(
             country_code="IR",
@@ -97,8 +97,8 @@ class TestFileStorage:
 
         storage.save(result)
 
-        ranges_path: str = os.path.join(temp_output_dir, "asn_ranges.txt")
-        with open(ranges_path) as f:
+        prefixes_path: str = os.path.join(temp_output_dir, "asn_prefixes.txt")
+        with open(prefixes_path) as f:
             lines: list[str] = [line.strip() for line in f.readlines()]
 
         # Check that each allocation exists as a separate line
@@ -107,8 +107,8 @@ class TestFileStorage:
         # Optional: check exact order
         assert lines == ["AS12880", "AS25124"]
 
-    def test_ranges_appends(self, temp_output_dir: str) -> None:
-        """Test that ranges are appended for multiple countries."""
+    def test_prefixes_appends(self, temp_output_dir: str) -> None:
+        """Test that prefixes are appended for multiple countries."""
         storage = FileStorage(output_dir=temp_output_dir)
 
         result1 = FetchResult(
@@ -127,34 +127,34 @@ class TestFileStorage:
         storage.save(result1)
         storage.save(result2)
 
-        ranges_path: str = os.path.join(temp_output_dir, "asn_ranges.txt")
-        with open(ranges_path) as f:
+        prefixes_path: str = os.path.join(temp_output_dir, "asn_prefixes.txt")
+        with open(prefixes_path) as f:
             lines: list[str] = f.readlines()
 
         assert len(lines) == 2
         assert "AS12880" in lines[0]
         assert "AS3356" in lines[1]
 
-    def test_clear_ranges_file(self, temp_output_dir: str) -> None:
-        """Test clearing ranges file."""
+    def test_clear_prefixes_file(self, temp_output_dir: str) -> None:
+        """Test clearing prefixes file."""
         storage = FileStorage(output_dir=temp_output_dir)
 
-        # Create a ranges file
-        ranges_path: str = os.path.join(temp_output_dir, "asn_ranges.txt")
-        with open(ranges_path, "w") as f:
+        # Create a prefixes file
+        prefixes_path: str = os.path.join(temp_output_dir, "asn_prefixes.txt")
+        with open(prefixes_path, "w") as f:
             f.write("AS12880\n")
 
-        assert os.path.exists(ranges_path)
+        assert os.path.exists(prefixes_path)
 
-        storage.clear_ranges_file("asn")
+        storage.clear_prefixes_file("asn")
 
-        assert not os.path.exists(ranges_path)
+        assert not os.path.exists(prefixes_path)
 
-    def test_clear_nonexistent_ranges_file(self, temp_output_dir: str) -> None:
-        """Test clearing non-existent ranges file doesn't raise error."""
+    def test_clear_nonexistent_prefixes_file(self, temp_output_dir: str) -> None:
+        """Test clearing non-existent prefixes file doesn't raise error."""
         storage = FileStorage(output_dir=temp_output_dir)
         # Should not raise any exception
-        storage.clear_ranges_file("ipv6")
+        storage.clear_prefixes_file("ipv6")
 
     def test_multiple_data_types(self, temp_output_dir: str) -> None:
         """Test saving different data types."""
@@ -178,8 +178,8 @@ class TestFileStorage:
 
         assert os.path.exists(os.path.join(temp_output_dir, "IR_asn_list.csv"))
         assert os.path.exists(os.path.join(temp_output_dir, "IR_ipv4_list.csv"))
-        assert os.path.exists(os.path.join(temp_output_dir, "asn_ranges.txt"))
-        assert os.path.exists(os.path.join(temp_output_dir, "ipv4_ranges.txt"))
+        assert os.path.exists(os.path.join(temp_output_dir, "asn_prefixes.txt"))
+        assert os.path.exists(os.path.join(temp_output_dir, "ipv4_prefixes.txt"))
 
     def test_save_os_error_returns_false(self, temp_output_dir: str) -> None:
         """Test that save returns False on OSError."""
@@ -215,8 +215,8 @@ class TestAllocationsFromCsv:
 
         storage.save(result)
 
-        ranges_path = os.path.join(temp_output_dir, "ipv4_ranges.txt")
-        with open(ranges_path) as f:
+        prefixes_path = os.path.join(temp_output_dir, "ipv4_prefixes.txt")
+        with open(prefixes_path) as f:
             lines = [line.strip() for line in f.readlines()]
 
         assert "5.22.0.0/19" in lines
@@ -236,8 +236,8 @@ class TestAllocationsFromCsv:
 
         storage.save(result)
 
-        ranges_path = os.path.join(temp_output_dir, "ipv4_ranges.txt")
-        with open(ranges_path) as f:
+        prefixes_path = os.path.join(temp_output_dir, "ipv4_prefixes.txt")
+        with open(prefixes_path) as f:
             lines = [line.strip() for line in f.readlines()]
 
         # 91.237.254.0 - 91.238.0.255 = /23 + /24
@@ -258,9 +258,9 @@ class TestAllocationsFromCsv:
 
         storage.save(result)
 
-        # No ranges file should be created since no allocations could be generated
-        ranges_path = os.path.join(temp_output_dir, "ipv4_ranges.txt")
-        assert not os.path.exists(ranges_path)
+        # No prefixes file should be created since no allocations could be generated
+        prefixes_path = os.path.join(temp_output_dir, "ipv4_prefixes.txt")
+        assert not os.path.exists(prefixes_path)
 
     def test_ipv4_aggreg_invalid_range(self, temp_output_dir: str) -> None:
         """Test Aggreg prefix with invalid IP range logs warning."""
@@ -277,9 +277,9 @@ class TestAllocationsFromCsv:
         # Should not raise, just logs warning and skips
         storage.save(result)
 
-        # No ranges file should be created
-        ranges_path = os.path.join(temp_output_dir, "ipv4_ranges.txt")
-        assert not os.path.exists(ranges_path)
+        # No prefixes file should be created
+        prefixes_path = os.path.join(temp_output_dir, "ipv4_prefixes.txt")
+        assert not os.path.exists(prefixes_path)
 
     def test_ipv4_missing_first(self, temp_output_dir: str) -> None:
         """Test IPv4 row with missing First field."""
@@ -295,9 +295,9 @@ class TestAllocationsFromCsv:
 
         storage.save(result)
 
-        # No ranges file created
-        ranges_path = os.path.join(temp_output_dir, "ipv4_ranges.txt")
-        assert not os.path.exists(ranges_path)
+        # No prefixes file created
+        prefixes_path = os.path.join(temp_output_dir, "ipv4_prefixes.txt")
+        assert not os.path.exists(prefixes_path)
 
     def test_ipv4_missing_prefix(self, temp_output_dir: str) -> None:
         """Test IPv4 row with missing Prefix field."""
@@ -313,9 +313,9 @@ class TestAllocationsFromCsv:
 
         storage.save(result)
 
-        # No ranges should be generated
-        ranges_path = os.path.join(temp_output_dir, "ipv4_ranges.txt")
-        assert not os.path.exists(ranges_path)
+        # No prefixes should be generated
+        prefixes_path = os.path.join(temp_output_dir, "ipv4_prefixes.txt")
+        assert not os.path.exists(prefixes_path)
 
     def test_ipv6_with_length(self, temp_output_dir: str) -> None:
         """Test generating allocations from CSV for IPv6 with Length."""
@@ -332,8 +332,8 @@ class TestAllocationsFromCsv:
 
         storage.save(result)
 
-        ranges_path = os.path.join(temp_output_dir, "ipv6_ranges.txt")
-        with open(ranges_path) as f:
+        prefixes_path = os.path.join(temp_output_dir, "ipv6_prefixes.txt")
+        with open(prefixes_path) as f:
             lines = [line.strip() for line in f.readlines()]
 
         assert "2001:db8::/32" in lines
@@ -353,8 +353,8 @@ class TestAllocationsFromCsv:
 
         storage.save(result)
 
-        ranges_path = os.path.join(temp_output_dir, "ipv6_ranges.txt")
-        with open(ranges_path) as f:
+        prefixes_path = os.path.join(temp_output_dir, "ipv6_prefixes.txt")
+        with open(prefixes_path) as f:
             lines = [line.strip() for line in f.readlines()]
 
         assert "2001:db8::" in lines
@@ -373,6 +373,6 @@ class TestAllocationsFromCsv:
 
         storage.save(result)
 
-        # No ranges should be generated
-        ranges_path = os.path.join(temp_output_dir, "ipv6_ranges.txt")
-        assert not os.path.exists(ranges_path)
+        # No prefixes should be generated
+        prefixes_path = os.path.join(temp_output_dir, "ipv6_prefixes.txt")
+        assert not os.path.exists(prefixes_path)

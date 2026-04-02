@@ -302,10 +302,10 @@ class TestRunScraper:
 
     @patch("src.cli.DataFetcher")
     @patch("src.cli.FileStorage")
-    def test_run_scraper_clears_ranges_files(
+    def test_run_scraper_clears_prefixes_files(
         self, mock_storage: MagicMock, mock_fetcher: MagicMock
     ) -> None:
-        """Test that ranges files are cleared before scraping."""
+        """Test that prefixes files are cleared before scraping."""
         mock_fetcher_instance = mock_fetcher.return_value
         mock_fetcher_instance.fetch.return_value = FetchResult(
             country_code="IR",
@@ -324,7 +324,7 @@ class TestRunScraper:
             quiet=True,
         )
 
-        mock_storage_instance.clear_ranges_file.assert_called_with("asn")
+        mock_storage_instance.clear_prefixes_file.assert_called_with("asn")
 
 
 class TestMain:

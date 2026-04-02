@@ -61,7 +61,7 @@ class FileStorage:
                 allocations: list[str] = self._allocations_from_csv(csv_path, result.data_type)
 
             if allocations:
-                self._save_ranges_file(result.data_type, allocations)
+                self._save_prefixes_file(result.data_type, allocations)
             return True
         except OSError:
             return False
@@ -112,16 +112,16 @@ class FileStorage:
                     allocations.append(ipv6_prefix)
         return allocations
 
-    def _save_ranges_file(self, data_type: str, allocations: list[str]) -> str:
+    def _save_prefixes_file(self, data_type: str, allocations: list[str]) -> str:
         """
-        Save allocations to ranges file.
+        Save allocations to prefixes file.
         Args:
             result: FetchResult containing allocations to save.
         Returns:
-            Path to the ranges file.
+            Path to the prefixes file.
         """
         all_ips: list[str] = []
-        range_file: Path = Path(self.output_dir) / f"{data_type}_ranges.txt"
+        range_file: Path = Path(self.output_dir) / f"{data_type}_prefixes.txt"
         with range_file.open("a", encoding="utf-8") as f:
             for alloc in allocations:
                 f.write(alloc + "\n")
@@ -137,18 +137,18 @@ class FileStorage:
                         e,
                     )
 
-        expanded_range_file: Path = Path(self.output_dir) / f"{data_type}_ranges_expanded.txt"
+        expanded_range_file: Path = Path(self.output_dir) / f"{data_type}_prefixes_expanded.txt"
         with expanded_range_file.open("a", encoding="utf-8") as f:
             for ip in all_ips:
                 f.write(ip + "\n")
         return str(range_file)
 
-    def clear_ranges_file(self, data_type: str) -> None:
+    def clear_prefixes_file(self, data_type: str) -> None:
         """
-        Clear a ranges file before starting fresh.
+        Clear a prefixes file before starting fresh.
         Args:
             data_type: Type of data ('asn', 'ipv4', 'ipv6').
         """
-        range_file: Path = Path(self.output_dir) / f"{data_type}_ranges.txt"
+        range_file: Path = Path(self.output_dir) / f"{data_type}_prefixes.txt"
         if range_file.exists():
             range_file.unlink()

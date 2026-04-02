@@ -135,9 +135,9 @@ The output will be generated in the `output_data` directory:
 | `{Country}_ipv6_list.csv` | Contains IPv6-specific ASN delegations for the specified country. |
 | `{Country}_ipv4.rsc`      | Contains IPv4-specific MikroTik script for the specified country. |
 | `{Country}_ipv6.rsc`      | Contains IPv6-specific MikroTik script for the specified country. |
-| `asn_ranges.txt`          | Contains a list of all ASN ranges across countries.               |
-| `ipv4_ranges.txt`         | Contains a list of all IPv4 ranges.                               |
-| `ipv6_ranges.txt`         | Contains a list of all IPv6 ranges.                               |
+| `asn_prefixes.txt`        | Contains a list of all ASN prefixes across countries.             |
+| `ipv4_prefixes.txt`       | Contains a list of all IPv4 prefixes.                             |
+| `ipv6_prefixes.txt`       | Contains a list of all IPv6 prefixes.                             |
 
 ## Development
 

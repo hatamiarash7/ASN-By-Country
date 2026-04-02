@@ -125,9 +125,9 @@ def run_scraper(
         else None
     )
 
-    # Clear existing ranges files for clean output
+    # Clear existing prefixes files for clean output
     for data_type in data_types:
-        storage.clear_ranges_file(data_type)
+        storage.clear_prefixes_file(data_type)
 
     if not quiet:
         console.log(f"[blue]Starting data fetch for {len(countries)} countries ")
