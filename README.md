@@ -57,10 +57,10 @@ python -m src.cli <country_code_1> <country_code_2> ... [options]
 
 - `-d, --data-type <type>`:
   Specify which type of data to fetch. The options are:
-  - `asn`: Retrieve only AS numbers (default).
+  - `asn`: Retrieve only AS numbers.
   - `ipv4`: Retrieve only IPv4 addresses.
   - `ipv6`: Retrieve only IPv6 addresses.
-  - `all`: Retrieve AS numbers, IPv4 addresses, and IPv6 addresses.
+  - `all`: Retrieve AS numbers, IPv4 addresses, and IPv6 addresses  (default).
 
 - `-w, --max-workers <N>`: Maximum concurrent workers (default: 5)
 - `-q, --quiet`: Suppress progress output

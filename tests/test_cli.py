@@ -35,10 +35,10 @@ class TestCreateParser:
         assert args.countries == ["IR", "US", "DE"]
 
     def test_parser_default_data_type(self) -> None:
-        """Test default data type is 'asn'."""
+        """Test default data type is 'all'."""
         parser = create_parser()
         args = parser.parse_args(["IR"])
-        assert args.data_type == "asn"
+        assert args.data_type == "all"
 
     def test_parser_data_type_options(self) -> None:
         """Test all data type options."""

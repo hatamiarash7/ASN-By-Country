@@ -47,8 +47,8 @@ Examples:
         "-d",
         "--data-type",
         choices=["asn", "ipv4", "ipv6", "all"],
-        default="asn",
-        help="Type of data to fetch (default: asn)",
+        default="all",
+        help="Type of data to fetch (default: all)",
     )
     parser.add_argument(
         "-w",
