@@ -1,5 +1,6 @@
 """Data storage and file operations."""
 
+import ipaddress
 import logging
 import os
 from pathlib import Path
@@ -119,10 +120,27 @@ class FileStorage:
         Returns:
             Path to the ranges file.
         """
+        all_ips: list[str] = []
         range_file: Path = Path(self.output_dir) / f"{data_type}_ranges.txt"
         with range_file.open("a", encoding="utf-8") as f:
             for alloc in allocations:
-                f.write(f"{alloc}\n")
+                f.write(alloc + "\n")
+                try:
+                    network = ipaddress.ip_network(alloc, strict=False)
+                    # Get all hosts in the network
+                    ips: list[str] = [str(ip) for ip in network.hosts()]
+                    all_ips.extend(ips)
+                except ValueError as e:
+                    logger.warning(
+                        "Error parsing %s: %s",
+                        alloc,
+                        e,
+                    )
+
+        expanded_range_file: Path = Path(self.output_dir) / f"{data_type}_ranges_expanded.txt"
+        with expanded_range_file.open("a", encoding="utf-8") as f:
+            for ip in all_ips:
+                f.write(ip + "\n")
         return str(range_file)
 
     def clear_ranges_file(self, data_type: str) -> None:
