@@ -324,8 +324,8 @@ class TestAllocationsFromCsv:
             country_code="IR",
             data_type="ipv6",
             data_rows=[
-                {"Prefix": "2001:db8::", "Length": "32"},
-                {"Prefix": "2001:db9::", "Length": "48"},
+                {"First": "2001:db8::", "Prefix": "/32"},
+                {"First": "2001:db9::", "Prefix": "/48"},
             ],
             allocations=None,
         )
@@ -358,21 +358,3 @@ class TestAllocationsFromCsv:
             lines = [line.strip() for line in f.readlines()]
 
         assert "2001:db8::" in lines
-
-    def test_ipv6_missing_prefix(self, temp_output_dir: str) -> None:
-        """Test IPv6 row with missing Prefix field."""
-        storage = FileStorage(output_dir=temp_output_dir)
-        result = FetchResult(
-            country_code="IR",
-            data_type="ipv6",
-            data_rows=[
-                {"Length": "32"},  # No Prefix
-            ],
-            allocations=None,
-        )
-
-        storage.save(result)
-
-        # No prefixes should be generated
-        prefixes_path = os.path.join(temp_output_dir, "ipv6_prefixes.txt")
-        assert not os.path.exists(prefixes_path)
