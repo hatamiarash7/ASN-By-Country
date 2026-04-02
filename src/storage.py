@@ -125,6 +125,8 @@ class FileStorage:
         with prefix_file.open("a", encoding="utf-8") as f:
             for alloc in allocations:
                 f.write(alloc + "\n")
+                if data_type == "asn":
+                    continue  # ASNs don't expand to IPs
                 try:
                     network = ipaddress.ip_network(alloc, strict=False)
                     # Get all hosts in the network
