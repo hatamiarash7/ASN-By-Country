@@ -107,19 +107,21 @@ class FileStorage:
                 allocations.append(f"{ipv6_prefix}{length}")
         return allocations
 
-    def _save_prefixes_file(self, data_type: str, allocations: list[str] | None) -> str:
+    def _save_prefixes_file(self, data_type: str, allocations: list[str] | None) -> str | None:
         """
         Save allocations to prefixes file.
         Args:
             data_type: Type of data ('asn', 'ipv4', 'ipv6').
             allocations: List of allocations to save.
         Returns:
-            Path to the prefixes file.
+            Path to the prefixes file, or None if not created.
         """
+        if not allocations:
+            return None
         all_ips: list[str] = []
         prefix_file: Path = Path(self.output_dir) / f"{data_type}_prefixes.txt"
         with prefix_file.open("a", encoding="utf-8") as f:
-            for alloc in allocations or []:
+            for alloc in allocations:
                 f.write(alloc + "\n")
                 if data_type in ("asn", "ipv6"):
                     continue  # ASNs don't expand to IPs and IPv6 expansion is skipped due to size
