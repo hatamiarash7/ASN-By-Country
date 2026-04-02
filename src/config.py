@@ -11,9 +11,9 @@ OUTPUT_DIR: Final[str] = "output_data"
 
 # URL templates for data sources
 BASE_URLS: Final[dict[str, str]] = {
-    "asn": "https://www-public.imtbs-tsp.eu/~maigron/rir-stats/rir-delegations/delegations/asn/{country}-asn-delegations.html",
-    "ipv4": "https://www-public.imtbs-tsp.eu/~maigron/rir-stats/rir-delegations/delegations/ipv4/{country}-ipv4-delegations.html",
-    "ipv6": "https://www-public.imtbs-tsp.eu/~maigron/rir-stats/rir-delegations/delegations/ipv6/{country}-ipv6-delegations.html",
+    "asn": "https://www-public.telecom-sudparis.eu/~maigron/rir-stats/rir-delegations/delegations/asn/{country}-asn-delegations.html",
+    "ipv4": "https://www-public.telecom-sudparis.eu/~maigron/rir-stats/rir-delegations/delegations/ipv4/{country}-ipv4-delegations.html",
+    "ipv6": "https://www-public.telecom-sudparis.eu/~maigron/rir-stats/rir-delegations/delegations/ipv6/{country}-ipv6-delegations.html",
 }
 
 # HTTP headers for requests

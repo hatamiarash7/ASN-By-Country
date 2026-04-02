@@ -17,7 +17,7 @@ A Python tool to scrape ASN (Autonomous System Number), IPv4, and IPv6 allocatio
 - Rich console output with progress tracking
 - Docker support for containerized execution
 
-Data source: [RIR Delegations & RIPE NCC Allocations](https://www-public.imtbs-tsp.eu/~maigron/RIR_Stats/index.html)
+Data source: [RIR Delegations & RIPE NCC Allocations](https://www-public.telecom-sudparis.eu/~maigron/rir-stats/)
 
 ## Installation
 
