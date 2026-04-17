@@ -8,10 +8,10 @@ repos:
         args:
           - --fix
           - --exit-non-zero-on-fix
-        types_or: [python, pyi]
+        types_or: [python, pyi, pyproject]
       - id: ruff-format
         name: ruff (format)
-        types_or: [python, pyi]
+        types_or: [python, pyi, pyproject]
 
   # mypy (static type checking)
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -22,8 +22,6 @@ repos:
         args:
           - --strict
         additional_dependencies:
-          # Add your runtime deps with type hints here
-          # Examples:
           - types-requests
           - types-PyYAML
 
