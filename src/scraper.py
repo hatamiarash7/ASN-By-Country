@@ -16,6 +16,20 @@ logger: logging.Logger = logging.getLogger(__name__)
 class DataFetcher:
     """Handles fetching and processing of country network data."""
 
+    @staticmethod
+    def _clean_number(number: str) -> str:
+        """
+        Remove spaces and non-breaking spaces from a number string.
+        E.g., '2 048', '2\u00a0048', '2\u202f048' → '2048'
+
+        Args:
+            number(str): The number string to clean.
+
+        Return:
+            str: The cleaned number string with all spaces removed.
+        """
+        return number.replace("\u00a0", "").replace("\u202f", "").replace(" ", "")
+
     def __init__(
         self,
         timeout: int = DEFAULT_TIMEOUT,
@@ -95,7 +109,9 @@ class DataFetcher:
             Tuple of (data_rows, allocations) or (None, None) if parsing fails.
         """
         soup = BeautifulSoup(html_content, "lxml")
-        table: Tag | None = soup.find("table", attrs={"class": f"delegs {data_type} ripencc"})
+        table: Tag | None = soup.find(
+            "table", attrs={"class": f"delegs {data_type} ripencc"}
+        )
 
         if not table or not isinstance(table, Tag):
             return None, None
@@ -112,6 +128,10 @@ class DataFetcher:
                 continue
 
             row_data: dict[str, str] = dict(zip(headers[1:], columns))
+            for key, value in row_data.items():
+                if key.lower() == "number":
+                    # Clean number fields for CSV output
+                    row_data[key] = self._clean_number(value)
             data_rows.append(row_data)
 
             if extracted := self._extract_allocation(columns, data_type):

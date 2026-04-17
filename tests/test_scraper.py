@@ -10,6 +10,47 @@ from src.scraper import DataFetcher
 class TestDataFetcher:
     """Tests for DataFetcher class."""
 
+    def test_clean_number(self):
+        fetcher = DataFetcher()
+        assert fetcher._clean_number("2 048") == "2048"
+        assert fetcher._clean_number("2\u00a0048") == "2048"
+        assert fetcher._clean_number("2\u202f048") == "2048"
+        assert fetcher._clean_number("2048") == "2048"
+        assert fetcher._clean_number("") == ""
+
+    def test_parse_response_number_field_cleaned(self):
+        fetcher = DataFetcher()
+        html = """
+        <html><body>
+        <table class="delegs asn ripencc">
+            <tr><th colspan="7">RIPE NCC Delegations</th></tr>
+            <tr><th>Zone</th><th>Country</th><th>Parameter</th><th>Range</th><th>Number</th><th>Date</th><th>Status</th></tr>
+            <tr><td>RIPE NCC</td><td>IR</td><td>ASN</td><td>AS12880</td><td>2&nbsp;048</td><td>2003-01-01</td><td>Allocated</td></tr>
+            <tr><td>RIPE NCC</td><td>IR</td><td>ASN</td><td>AS25124</td><td>1</td><td>2004-05-15</td><td>Allocated</td></tr>
+        </table>
+        </body></html>
+        """
+        data_rows, allocations = fetcher._parse_response(html, "asn")
+        assert data_rows is not None
+        assert allocations is not None
+        assert data_rows[0]["Number"] == "2048"
+        assert data_rows[1]["Number"] == "1"
+
+    def test_parse_response_number_field_with_space(self):
+        fetcher = DataFetcher()
+        html = """
+        <html><body>
+        <table class="delegs ipv4 ripencc">
+            <tr><th colspan="9">RIPE NCC Delegations</th></tr>
+            <tr><th>Zone</th><th>Country</th><th>Parameter</th><th>First</th><th>Last</th><th>Prefix</th><th>Number</th><th>Date</th><th>Status</th></tr>
+            <tr><td>RIPE NCC</td><td>IR</td><td>IPv4</td><td>5.22.0.0</td><td>5.22.7.255</td><td>/19</td><td>8 192</td><td>2012-01-01</td><td>Allocated</td></tr>
+        </table>
+        </body></html>
+        """
+        data_rows, _ = fetcher._parse_response(html, "ipv4")
+        assert data_rows is not None
+        assert data_rows[0]["Number"] == "8192"
+
     def test_init_default_values(self) -> None:
         """Test initialization with default values."""
         fetcher = DataFetcher()
@@ -295,7 +336,9 @@ class TestEdgeCases:
         assert result is None
 
     @patch("src.scraper.requests.get")
-    def test_fetch_table_with_empty_rows(self, mock_get: Mock, mock_response: Mock) -> None:
+    def test_fetch_table_with_empty_rows(
+        self, mock_get: Mock, mock_response: Mock
+    ) -> None:
         """Test fetch handles table with empty rows."""
         # HTML with a table that has an empty row (no <td> elements)
         html_with_empty_row = """
