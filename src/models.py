@@ -9,7 +9,7 @@ class FetchResult:
 
     country_code: str
     data_type: str
-    data_rows: list[dict] | None = None
+    data_rows: list[dict[str, str]] | None = None
     allocations: list[str] | None = None
     error: str | None = None
 
@@ -31,7 +31,7 @@ class ScraperStats:
     total_requests: int = 0
     successful_requests: int = 0
     failed_requests: int = 0
-    countries_processed: set = field(default_factory=set)
+    countries_processed: set[str] = field(default_factory=set)
 
     def record_success(self, country_code: str) -> None:
         """Record a successful request."""

@@ -97,7 +97,7 @@ class DataFetcher:
 
     def _parse_response(
         self, html_content: str, data_type: str
-    ) -> tuple[list[dict] | None, list[str] | None]:
+    ) -> tuple[list[dict[str, str]] | None, list[str] | None]:
         """
         Parse HTML response and extract data.
 

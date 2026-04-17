@@ -10,7 +10,7 @@ from src.scraper import DataFetcher
 class TestDataFetcher:
     """Tests for DataFetcher class."""
 
-    def test_clean_number(self):
+    def test_clean_number(self) -> None:
         fetcher = DataFetcher()
         assert fetcher._clean_number("2 048") == "2048"
         assert fetcher._clean_number("2\u00a0048") == "2048"
@@ -18,7 +18,7 @@ class TestDataFetcher:
         assert fetcher._clean_number("2048") == "2048"
         assert fetcher._clean_number("") == ""
 
-    def test_parse_response_number_field_cleaned(self):
+    def test_parse_response_number_field_cleaned(self) -> None:
         fetcher = DataFetcher()
         html = """
         <html><body>
@@ -36,7 +36,7 @@ class TestDataFetcher:
         assert data_rows[0]["Number"] == "2048"
         assert data_rows[1]["Number"] == "1"
 
-    def test_parse_response_number_field_with_space(self):
+    def test_parse_response_number_field_with_space(self) -> None:
         fetcher = DataFetcher()
         html = """
         <html><body>
