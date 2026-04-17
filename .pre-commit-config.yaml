@@ -1,0 +1,41 @@
+repos:
+  # Ruff (lint + format, replaces flake8/black/isort)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.11
+    hooks:
+      - id: ruff
+        name: ruff (lint)
+        args:
+          - --fix
+          - --exit-non-zero-on-fix
+        types_or: [python, pyi]
+      - id: ruff-format
+        name: ruff (format)
+        types_or: [python, pyi]
+
+  # mypy (static type checking)
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.20.1
+    hooks:
+      - id: mypy
+        name: mypy (type check)
+        args:
+          - --strict
+        additional_dependencies:
+          # Add your runtime deps with type hints here
+          # Examples:
+          - types-requests
+          - types-PyYAML
+        exclude: ^(tests/|migrations/)
+
+  # Basic hygiene checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+      - id: debug-statements
