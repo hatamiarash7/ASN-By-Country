@@ -109,9 +109,7 @@ class DataFetcher:
             Tuple of (data_rows, allocations) or (None, None) if parsing fails.
         """
         soup = BeautifulSoup(html_content, "lxml")
-        table: Tag | None = soup.find(
-            "table", attrs={"class": f"delegs {data_type} ripencc"}
-        )
+        table: Tag | None = soup.find("table", attrs={"class": f"delegs {data_type} ripencc"})
 
         if not table or not isinstance(table, Tag):
             return None, None

@@ -336,9 +336,7 @@ class TestEdgeCases:
         assert result is None
 
     @patch("src.scraper.requests.get")
-    def test_fetch_table_with_empty_rows(
-        self, mock_get: Mock, mock_response: Mock
-    ) -> None:
+    def test_fetch_table_with_empty_rows(self, mock_get: Mock, mock_response: Mock) -> None:
         """Test fetch handles table with empty rows."""
         # HTML with a table that has an empty row (no <td> elements)
         html_with_empty_row = """
