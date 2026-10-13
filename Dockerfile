@@ -1,7 +1,7 @@
 # --------------------------
 # Builder Stage
 # --------------------------
-FROM python:3.14-slim-trixie AS builder
+FROM python:3.15-slim-trixie AS builder
 
 # --------------------------
 # Metadata
@@ -40,7 +40,7 @@ RUN pip install --upgrade pip \
 # --------------------------
 # Runtime Stage
 # --------------------------
-FROM python:3.14-slim-trixie AS runtime
+FROM python:3.15-slim-trixie AS runtime
 
 WORKDIR /app
 
